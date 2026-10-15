@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">RecycleGuide</string>
+
+    <!-- 메인 화면 문구 -->
+    <string name="title_app_main">분리수거\n도우미</string>
+    <string name="subtitle_app_main">쓰레기를 촬영하면\n올바른 분리배출 방법을\n안내해드려요.</string>
+    <string name="btn_take_photo">사진 촬영하기</string>
+    <string name="label_current_location">현재 위치</string>
+    <string name="sample_location">무안군 삼향읍</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

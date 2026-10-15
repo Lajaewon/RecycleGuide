@@ -2,4 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- 앱 메인 초록색 및 배경색 -->
+    <color name="primary_green">#22A86B</color>
+    <color name="primary_green_dark">#1B8A57</color>
+    <color name="bg_green_light">#EBF7F2</color>
+
+    <!-- 텍스트 색상 -->
+    <color name="text_main">#1E2022</color>
+    <color name="text_sub">#667085</color>
 </resources>
