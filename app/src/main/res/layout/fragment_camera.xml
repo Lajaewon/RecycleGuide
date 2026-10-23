@@ -1,0 +1,44 @@
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    tools:context=".CameraFragment">
+
+    <!-- 카메라 영상 미리보기 -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:scaleType="fillCenter" />
+
+    <!-- 카메라 화면 닫기 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_close_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_margin="16dp"
+        android:text="@string/btn_close_camera"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#444444"
+        app:cornerRadius="20dp" />
+
+    <!-- 카메라 오류 메시지 -->
+    <TextView
+        android:id="@+id/tv_camera_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="24dp"
+        android:background="#99000000"
+        android:padding="16dp"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+</FrameLayout>

@@ -41,4 +41,18 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    val cameraXVersion = "1.6.2"
+
+    // 카메라의 핵심 기능
+    implementation("androidx.camera:camera-core:$cameraXVersion")
+
+    // Android 카메라 하드웨어 연결
+    implementation("androidx.camera:camera-camera2:$cameraXVersion")
+
+    // 카메라와 앱의 생명주기 연결
+    implementation("androidx.camera:camera-lifecycle:$cameraXVersion")
+
+    // 카메라 영상 미리보기
+    implementation("androidx.camera:camera-view:$cameraXVersion")
+
 }
