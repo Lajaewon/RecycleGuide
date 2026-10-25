@@ -10,4 +10,14 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="btn_close_camera">닫기</string>
+
+    <string name="camera_close_symbol">×</string>
+    <string name="camera_flash_symbol">ϟ</string>
+    <string name="camera_flash_description">플래시 전환</string>
+    <string name="camera_gallery_symbol">▧</string>
+    <string name="camera_gallery">앨범</string>
+    <string name="camera_switch_symbol">⟳</string>
+    <string name="camera_switch">카메라 전환</string>
+    <string name="camera_capture_description">사진 촬영</string>
+
 </resources>

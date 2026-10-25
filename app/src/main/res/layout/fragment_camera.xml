@@ -5,40 +5,170 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="#151515"
     tools:context=".CameraFragment">
 
-    <!-- 카메라 영상 미리보기 -->
+    <!-- 1. 카메라 영상 미리보기 -->
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:scaleType="fillCenter" />
 
-    <!-- 카메라 화면 닫기 -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_close_camera"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:layout_margin="16dp"
-        android:text="@string/btn_close_camera"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#444444"
-        app:cornerRadius="20dp" />
+    <!-- 2. 상단 컨트롤 -->
+    <LinearLayout
+        android:id="@+id/top_controls"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="top"
+        android:layout_marginTop="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <!-- 카메라 오류 메시지 -->
+        <!-- 닫기 아이콘: 배경 없음 -->
+        <ImageButton
+            android:id="@+id/btn_close_camera"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/btn_close_camera"
+            app:srcCompat="@drawable/ic_camera_close"
+            app:tint="@android:color/white" />
+
+        <!-- 가운데 여백 -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- 플래시 아이콘: 배경 없음 -->
+        <ImageButton
+            android:id="@+id/btn_flash"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/camera_flash_description"
+            app:srcCompat="@drawable/ic_flash_off"
+            app:tint="@android:color/white" />
+
+    </LinearLayout>
+
+    <!-- 3. 하단 컨트롤 영역 -->
+    <LinearLayout
+        android:id="@+id/bottom_controls"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:background="#77202020">
+
+        <!-- 앨범 -->
+        <LinearLayout
+            android:id="@+id/btn_gallery"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/iv_gallery_icon"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_photo_library"
+                app:tint="@android:color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/camera_gallery"
+                android:textColor="@android:color/white"
+                android:textSize="11sp" />
+
+        </LinearLayout>
+
+        <!-- 중앙 촬영 버튼 -->
+        <FrameLayout
+            android:layout_width="88dp"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_capture"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:text=""
+                android:contentDescription="@string/camera_capture_description"
+                android:backgroundTint="#21A77C"
+                app:cornerRadius="36dp"
+                app:strokeColor="#FFFFFF"
+                app:strokeWidth="3dp" />
+
+        </FrameLayout>
+
+        <!-- 카메라 전환 -->
+        <LinearLayout
+            android:id="@+id/btn_switch_camera"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/iv_switch_camera_icon"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_flip_camera"
+                app:tint="@android:color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/camera_switch"
+                android:textColor="@android:color/white"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 4. 카메라 오류 메시지 -->
     <TextView
         android:id="@+id/tv_camera_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="24dp"
-        android:background="#99000000"
+        android:background="#DD222222"
         android:padding="16dp"
         android:gravity="center"
         android:textColor="@android:color/white"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:visibility="gone" />
 
 </FrameLayout>
