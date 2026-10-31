@@ -26,13 +26,15 @@ import java.io.File
 
 class CameraFragment : Fragment(R.layout.fragment_camera) {
 
+    // 카메라 화면의 뷰
     private var previewView: PreviewView? = null
     private var messageView: TextView? = null
+    private var flashButton: ImageButton? = null
 
+    // CameraX 객체
     private var cameraProvider: ProcessCameraProvider? = null
     private var camera: Camera? = null
     private var imageCapture: ImageCapture? = null
-    private var flashButton: ImageButton? = null
 
     // 기본 카메라는 후면 카메라
     private var lensFacing = CameraSelector.LENS_FACING_BACK
@@ -45,6 +47,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
+
             if (granted) {
                 startCamera()
             } else {
@@ -57,23 +60,28 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
         registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) { uri ->
-            if (uri != null) {
-                Toast.makeText(
-                    requireContext(),
-                    "이미지를 선택했습니다.",
-                    Toast.LENGTH_SHORT
-                ).show()
 
-                // 선택 이미지 전달 기능은 다음 단계에서 추가
+            if (uri != null) {
+                context?.let {
+                    Toast.makeText(
+                        it,
+                        "이미지를 선택했습니다.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                // 선택한 이미지 전달 기능은 추후 구현
             }
         }
 
+    // 화면이 생성된 후 실행
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        // XML 뷰 연결
         previewView = view.findViewById(R.id.previewView)
         messageView = view.findViewById(R.id.tv_camera_message)
         flashButton = view.findViewById(R.id.btn_flash)
@@ -106,7 +114,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                 galleryLauncher.launch("image/*")
             }
 
-        // 전면 / 후면 카메라 전환 버튼
+        // 전면 / 후면 카메라 전환
         view.findViewById<View>(R.id.btn_switch_camera)
             .setOnClickListener {
                 switchCamera()
@@ -130,15 +138,19 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
     // CameraX 초기화
     private fun startCamera() {
+
         val context = context ?: return
 
+        // 카메라 공급자 요청
         val cameraProviderFuture =
             ProcessCameraProvider.getInstance(context)
 
         cameraProviderFuture.addListener({
 
+            // 프래그먼트 화면이 이미 제거되었다면 중단
             val lifecycleOwner =
-                if (view != null) viewLifecycleOwner else return@addListener
+                viewLifecycleOwnerLiveData.value
+                    ?: return@addListener
 
             if (!lifecycleOwner.lifecycle.currentState
                     .isAtLeast(Lifecycle.State.STARTED)
@@ -148,7 +160,10 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
             try {
                 cameraProvider = cameraProviderFuture.get()
+
+                // 카메라 연결 함수 실행
                 bindCamera()
+
             } catch (e: Exception) {
                 Log.e(TAG, "카메라 준비 실패", e)
                 showMessage("카메라를 시작할 수 없습니다.")
@@ -157,12 +172,15 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
         }, ContextCompat.getMainExecutor(context))
     }
 
-    // 미리보기와 촬영 기능 연결
+    // 미리보기와 사진 촬영 기능 연결
     private fun bindCamera() {
+
         val provider = cameraProvider ?: return
-        val previewView = previewView ?: return
+        val cameraPreview = previewView ?: return
 
         try {
+
+            // 사용할 카메라 선택
             val selector = CameraSelector.Builder()
                 .requireLensFacing(lensFacing)
                 .build()
@@ -172,14 +190,20 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                 return
             }
 
-            // 실시간 영상 미리보기
+            // 1. 실시간 영상 미리보기 설정
             val previewUseCase = Preview.Builder()
                 .build()
                 .also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
+
+                    it.setSurfaceProvider(
+                        ContextCompat.getMainExecutor(
+                            cameraPreview.context
+                        ),
+                        cameraPreview.surfaceProvider
+                    )
                 }
 
-            // 사진 촬영 기능
+            // 2. 사진 촬영 기능 설정
             val captureUseCase = ImageCapture.Builder()
                 .setCaptureMode(
                     ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
@@ -193,10 +217,10 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                 )
                 .build()
 
-            // 기존 사용 사례 연결 해제
+            // 기존 카메라 사용 사례 연결 해제
             provider.unbindAll()
 
-            // 카메라 연결
+            // 3. 카메라와 프래그먼트 생명주기 연결
             camera = provider.bindToLifecycle(
                 viewLifecycleOwner,
                 selector,
@@ -204,7 +228,9 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                 captureUseCase
             )
 
+            // 생성한 촬영 기능 저장
             imageCapture = captureUseCase
+
             messageView?.visibility = View.GONE
 
         } catch (e: Exception) {
@@ -215,6 +241,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
     // 사진 촬영 및 앱 캐시에 저장
     private fun takePhoto() {
+
+        // ImageCapture 준비 여부 확인
         val capture = imageCapture ?: run {
             showMessage("카메라를 준비하고 있습니다.")
             return
@@ -222,39 +250,58 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
         val context = context ?: return
 
+        // 저장할 사진 파일 생성
         val photoFile = File(
             context.cacheDir,
             "waste_${System.currentTimeMillis()}.jpg"
         )
 
+        // 사진 저장 위치 설정
         val outputOptions =
             ImageCapture.OutputFileOptions.Builder(photoFile)
                 .build()
 
+        // 실제 사진 촬영
         capture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(context),
+
             object : ImageCapture.OnImageSavedCallback {
 
+                // 사진 촬영 및 저장 성공
                 override fun onImageSaved(
                     outputFileResults: ImageCapture.OutputFileResults
                 ) {
-                    Toast.makeText(
-                        context,
-                        "사진 촬영 완료",
-                        Toast.LENGTH_SHORT
-                    ).show()
 
-                    Log.d(
-                        TAG,
-                        "사진 저장 위치: ${photoFile.absolutePath}"
-                    )
+                    // 화면이 이미 제거되었다면 중단
+                    if (!isAdded || view == null) return
+
+                    // 결과 프래그먼트 생성 및 사진 경로 전달
+                    val resultFragment =
+                        WasteResultFragment.newInstance(
+                            photoFile.absolutePath
+                        )
+
+                    // 카메라 화면을 결과 화면으로 교체
+                    parentFragmentManager.beginTransaction()
+                        .replace(
+                            R.id.fragment_container,
+                            resultFragment
+                        )
+                        .addToBackStack("waste_result")
+                        .commit()
                 }
 
+                // 사진 촬영 실패
                 override fun onError(
                     exception: ImageCaptureException
                 ) {
-                    Log.e(TAG, "사진 촬영 실패", exception)
+                    Log.e(
+                        TAG,
+                        "사진 촬영 실패",
+                        exception
+                    )
+
                     showMessage("사진을 촬영하지 못했습니다.")
                 }
             }
@@ -263,19 +310,25 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
     // 플래시 켜기 / 끄기
     private fun toggleFlash() {
+
         val currentCamera = camera
 
+        // 카메라에 플래시가 있는지 확인
         if (currentCamera?.cameraInfo?.hasFlashUnit() != true) {
+
             Toast.makeText(
                 requireContext(),
                 "이 카메라는 플래시를 지원하지 않습니다.",
                 Toast.LENGTH_SHORT
             ).show()
+
             return
         }
 
+        // 플래시 상태 반전
         flashEnabled = !flashEnabled
 
+        // 촬영 시 사용할 플래시 모드 변경
         imageCapture?.flashMode =
             if (flashEnabled) {
                 ImageCapture.FLASH_MODE_ON
@@ -283,6 +336,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                 ImageCapture.FLASH_MODE_OFF
             }
 
+        // 플래시 아이콘 변경
         flashButton?.setImageResource(
             if (flashEnabled) {
                 R.drawable.ic_flash_on
@@ -294,8 +348,10 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
     // 전면 / 후면 카메라 전환
     private fun switchCamera() {
+
         val provider = cameraProvider ?: return
 
+        // 현재 카메라 반대 방향 선택
         val nextFacing =
             if (lensFacing == CameraSelector.LENS_FACING_BACK) {
                 CameraSelector.LENS_FACING_FRONT
@@ -308,16 +364,23 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
             .build()
 
         try {
+
+            // 전환할 카메라가 존재하는지 확인
             if (!provider.hasCamera(nextSelector)) {
+
                 Toast.makeText(
                     requireContext(),
                     "전환할 카메라를 사용할 수 없습니다.",
                     Toast.LENGTH_SHORT
                 ).show()
+
                 return
             }
 
+            // 사용할 카메라 변경
             lensFacing = nextFacing
+
+            // 변경된 카메라로 다시 연결
             bindCamera()
 
         } catch (e: Exception) {
@@ -328,21 +391,27 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
     // 카메라 오류 메시지 표시
     private fun showMessage(message: String) {
+
         messageView?.apply {
             text = message
             visibility = View.VISIBLE
         }
     }
 
+    // 프래그먼트 화면이 제거될 때
     override fun onDestroyView() {
-        // 화면을 벗어나면 하단 메뉴 복구
+
+        // 하단 메뉴 다시 표시
         activity
             ?.findViewById<BottomNavigationView>(R.id.bottom_navigation)
             ?.visibility = View.VISIBLE
 
+        // 뷰 참조 정리
         previewView = null
         messageView = null
         flashButton = null
+
+        // CameraX 참조 정리
         camera = null
         imageCapture = null
         cameraProvider = null

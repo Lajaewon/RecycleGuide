@@ -15,10 +15,13 @@
         android:paddingBottom="24dp">
 
         <!-- 1. 앱 제목 -->
+
+        <!-- 제목 옆 나뭇잎 -->
         <TextView
             android:id="@+id/layout_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:gravity="center"
             android:lineSpacingExtra="2dp"
             android:text="@string/title_app_main"
@@ -26,10 +29,10 @@
             android:textSize="40sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.506"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- 제목 옆 나뭇잎 -->
         <ImageView
             android:id="@+id/iv_title_leaf"
             android:layout_width="28dp"

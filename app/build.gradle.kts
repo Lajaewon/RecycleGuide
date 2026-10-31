@@ -55,4 +55,6 @@ dependencies {
     // 카메라 영상 미리보기
     implementation("androidx.camera:camera-view:$cameraXVersion")
 
+    implementation("androidx.exifinterface:exifinterface:1.4.2")
+
 }

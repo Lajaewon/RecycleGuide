@@ -20,4 +20,27 @@
     <string name="camera_switch">카메라 전환</string>
     <string name="camera_capture_description">사진 촬영</string>
 
+    <string name="result_back_description">뒤로 가기</string>
+    <string name="waste_photo_description">촬영한 폐기물 사진</string>
+
+    <string name="ai_result_title">AI 인식 결과</string>
+    <string name="ai_pending_title">AI 분석 대기</string>
+    <string name="ai_pending_message">FastAPI 서버 연결 후 폐기물 종류가 표시됩니다.</string>
+    <string name="ai_pending_confidence">신뢰도: 서버 연결 후 제공</string>
+
+    <string name="condition_title">추가 확인이 필요해요</string>
+    <string name="condition_description">사진만으로는 음식물이나 이물질, 내용물 여부를 정확하게 판단하기 어려워요. 아래 질문에 답해주세요.</string>
+
+    <string name="question_contamination">1. 음식물이나 이물질이 묻어 있나요?</string>
+    <string name="question_remaining_contents">2. 내용물이 남아 있나요?</string>
+
+    <string name="answer_yes">예</string>
+    <string name="answer_no">아니요</string>
+
+    <string name="btn_next">다음</string>
+    <string name="msg_answer_required">두 질문에 모두 답해주세요.</string>
+    <string name="msg_photo_load_failed">촬영한 사진을 불러오지 못했습니다.</string>
+    <string name="msg_conditions_saved">상태 응답을 확인했습니다.</string>
+
+
 </resources>
