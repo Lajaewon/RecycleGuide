@@ -22,6 +22,18 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
+
+import com.example.recycleguide.network.RetrofitClient
+import com.example.recycleguide.network.WasteUploadResponse
+
+import okhttp3.MultipartBody
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.asRequestBody
+
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
 import java.io.File
 
 class CameraFragment : Fragment(R.layout.fragment_camera) {
@@ -256,7 +268,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
             "waste_${System.currentTimeMillis()}.jpg"
         )
 
-        // 사진 저장 위치 설정
+        // 저장 위치 설정
         val outputOptions =
             ImageCapture.OutputFileOptions.Builder(photoFile)
                 .build()
@@ -276,20 +288,10 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                     // 화면이 이미 제거되었다면 중단
                     if (!isAdded || view == null) return
 
-                    // 결과 프래그먼트 생성 및 사진 경로 전달
-                    val resultFragment =
-                        WasteResultFragment.newInstance(
-                            photoFile.absolutePath
-                        )
+                    // 촬영한 사진을 서버로 업로드
+                    showMessage("사진을 서버에 업로드하고 있습니다.")
 
-                    // 카메라 화면을 결과 화면으로 교체
-                    parentFragmentManager.beginTransaction()
-                        .replace(
-                            R.id.fragment_container,
-                            resultFragment
-                        )
-                        .addToBackStack("waste_result")
-                        .commit()
+                    uploadPhoto(photoFile)
                 }
 
                 // 사진 촬영 실패
@@ -306,6 +308,138 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                 }
             }
         )
+    }
+
+    // FastAPI 서버로 사진 업로드
+    private fun uploadPhoto(photoFile: File) {
+
+        // 1. 사진 파일을 HTTP 전송용 RequestBody로 변환
+        val requestFile =
+            photoFile.asRequestBody(
+                "image/jpeg".toMediaType()
+            )
+
+        // 2. multipart/form-data의 file 항목 생성
+        val photoPart =
+            MultipartBody.Part.createFormData(
+                "file",
+                photoFile.name,
+                requestFile
+            )
+
+        // 3. Retrofit을 이용해 서버에 업로드 요청
+        RetrofitClient.api.uploadPhoto(photoPart)
+            .enqueue(object : Callback<WasteUploadResponse> {
+
+                // 서버로부터 응답을 받은 경우
+                override fun onResponse(
+                    call: Call<WasteUploadResponse>,
+                    response: Response<WasteUploadResponse>
+                ) {
+
+                    // 화면이 이미 제거되었다면 중단
+                    if (!isAdded || view == null) return
+
+                    if (response.isSuccessful) {
+
+                        val result = response.body()
+
+                        if (result?.success == true) {
+
+                            Log.d(
+                                TAG,
+                                "사진 업로드 성공: ${result.filename}"
+                            )
+
+                            Log.d(
+                                TAG,
+                                "파일 크기: ${result.sizeBytes} bytes"
+                            )
+
+                            Toast.makeText(
+                                requireContext(),
+                                "서버에 사진 업로드 성공!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            // 업로드 성공 후 결과 화면으로 이동
+                            navigateToResult(photoFile)
+
+                        } else {
+
+                            Log.e(
+                                TAG,
+                                "서버 응답 실패: ${result?.message}"
+                            )
+
+                            showMessage(
+                                result?.message
+                                    ?: "사진 업로드에 실패했습니다."
+                            )
+                        }
+
+                    } else {
+
+                        val errorMessage =
+                            response.errorBody()?.string()
+
+                        Log.e(
+                            TAG,
+                            "HTTP 오류: ${response.code()}, $errorMessage"
+                        )
+
+                        showMessage(
+                            "사진 업로드 실패 (HTTP ${response.code()})"
+                        )
+                    }
+                }
+
+                // 서버 연결 자체에 실패한 경우
+                override fun onFailure(
+                    call: Call<WasteUploadResponse>,
+                    t: Throwable
+                ) {
+
+                    if (!isAdded || view == null) return
+
+                    Log.e(
+                        TAG,
+                        "서버 통신 실패",
+                        t
+                    )
+
+                    showMessage(
+                        "서버에 연결할 수 없습니다."
+                    )
+
+                    Toast.makeText(
+                        requireContext(),
+                        "서버 연결을 확인해 주세요.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            })
+    }
+
+    // 사진 업로드 성공 후 결과 화면으로 이동
+    private fun navigateToResult(photoFile: File) {
+
+        if (!isAdded || view == null) return
+
+        // 결과 프래그먼트 생성 및 사진 경로 전달
+        val resultFragment =
+            WasteResultFragment.newInstance(
+                photoFile.absolutePath
+            )
+
+        // 카메라 화면을 결과 화면으로 교체
+        parentFragmentManager.beginTransaction()
+            .replace(
+                R.id.fragment_container,
+                resultFragment
+            )
+            .addToBackStack("waste_result")
+            .commit()
     }
 
     // 플래시 켜기 / 끄기
