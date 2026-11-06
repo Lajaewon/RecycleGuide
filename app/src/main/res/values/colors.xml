@@ -11,4 +11,21 @@
     <!-- 텍스트 색상 -->
     <color name="text_main">#1E2022</color>
     <color name="text_sub">#667085</color>
+
+    <color name="home_bg_top">#DCF1E5</color>
+    <color name="home_deco_circle">#73FFFFFF</color>
+    <color name="home_icon_bg">#E6F4EC</color>
+    <color name="home_card_stroke">#E1EEE6</color>
+    <color name="home_ripple_green">#1A2E9C6A</color>
+
+
+    <color name="home_tip_bg">#FFF8E6</color>
+    <color name="home_tip_icon">#F0A500</color>
+
+    <!-- 하단바 -->
+    <color name="nav_unselected">#A3B0A8</color>
+
+
+
+
 </resources>

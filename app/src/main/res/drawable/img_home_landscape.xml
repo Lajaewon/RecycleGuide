@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="220dp"
+    android:viewportWidth="360"
+    android:viewportHeight="220">
+
+    <!-- ===== 하늘 ===== -->
+
+    <!-- 해 (후광 + 본체) -->
+    <path
+        android:fillAlpha="0.5"
+        android:fillColor="#FFE9A8"
+        android:pathData="M274,42a26,26 0 1,0 52,0a26,26 0 1,0 -52,0" />
+    <path
+        android:fillColor="#FFD66B"
+        android:pathData="M283,42a17,17 0 1,0 34,0a17,17 0 1,0 -34,0" />
+
+    <!-- 구름 -->
+    <path
+        android:fillAlpha="0.95"
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,74a12,12 0 0,1 12,-12a17,17 0 0,1 32,-4a11,11 0 0,1 14,16z" />
+    <path
+        android:fillAlpha="0.95"
+        android:fillColor="#FFFFFF"
+        android:pathData="M228,62a11,11 0 0,1 11,-11a15,15 0 0,1 28,-3a10,10 0 0,1 13,14z" />
+    <path
+        android:fillAlpha="0.9"
+        android:fillColor="#FFFFFF"
+        android:pathData="M120,30a8,8 0 0,1 8,-8a11,11 0 0,1 20,-2a7,7 0 0,1 9,10z" />
+
+    <!-- 새 -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M150,56q4,-4 8,0q4,-4 8,0"
+        android:strokeWidth="1.6"
+        android:strokeColor="#6A9A80"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M176,44q3,-3 6,0q3,-3 6,0"
+        android:strokeWidth="1.4"
+        android:strokeColor="#6A9A80"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- ===== 도시 (언덕 뒤) ===== -->
+    <path
+        android:fillColor="#A9D6BC"
+        android:pathData="M244,96h22v104h-22zM270,74h26v126h-26zM300,88h22v112h-22zM326,104h20v96h-20z" />
+
+    <!-- 창문 -->
+    <path
+        android:fillAlpha="0.75"
+        android:fillColor="#FFFFFF"
+        android:pathData="M249,102h4v5h-4zM257,102h4v5h-4zM249,111h4v5h-4zM257,111h4v5h-4zM276,80h4v5h-4zM286,80h4v5h-4zM276,89h4v5h-4zM286,89h4v5h-4zM276,98h4v5h-4zM286,98h4v5h-4zM276,107h4v5h-4zM286,107h4v5h-4zM305,94h4v5h-4zM313,94h4v5h-4zM305,103h4v5h-4zM313,103h4v5h-4zM305,112h4v5h-4zM313,112h4v5h-4zM331,110h4v5h-4zM339,110h4v5h-4zM331,119h4v5h-4zM339,119h4v5h-4z" />
+
+    <!-- ===== 뒷 언덕 ===== -->
+    <path
+        android:fillColor="#C3E6D1"
+        android:pathData="M0,150C60,112 120,114 180,135C240,158 300,108 360,120L360,220L0,220z" />
+
+    <!-- ===== 나무 ===== -->
+
+    <!-- 왼쪽 큰 나무 -->
+    <path
+        android:fillColor="#6E8F78"
+        android:pathData="M37,112h6v60h-6z" />
+    <path
+        android:fillColor="#3FA672"
+        android:pathData="M14,112a26,26 0 1,0 52,0a26,26 0 1,0 -52,0" />
+    <path
+        android:fillColor="#5DBB87"
+        android:pathData="M24,104a12,12 0 1,0 24,0a12,12 0 1,0 -24,0" />
+
+    <!-- 왼쪽 작은 나무 -->
+    <path
+        android:fillColor="#6E8F78"
+        android:pathData="M80,126h4v40h-4z" />
+    <path
+        android:fillColor="#5DBB87"
+        android:pathData="M67,126a15,15 0 1,0 30,0a15,15 0 1,0 -30,0" />
+
+    <!-- 오른쪽 뾰족 나무 -->
+    <path
+        android:fillColor="#6E8F78"
+        android:pathData="M248,146h4v24h-4z" />
+    <path
+        android:fillColor="#3FA672"
+        android:pathData="M250,104L270,150H230z" />
+    <path
+        android:fillColor="#4FB27F"
+        android:pathData="M250,96L265,130H235z" />
+
+    <!-- 오른쪽 큰 나무 -->
+    <path
+        android:fillColor="#6E8F78"
+        android:pathData="M333,112h5v56h-5z" />
+    <path
+        android:fillColor="#3FA672"
+        android:pathData="M315,110a21,21 0 1,0 42,0a21,21 0 1,0 -42,0" />
+    <path
+        android:fillColor="#5DBB87"
+        android:pathData="M323,103a9,9 0 1,0 18,0a9,9 0 1,0 -18,0" />
+
+    <!-- ===== 중간 언덕 ===== -->
+    <path
+        android:fillColor="#8FD0AA"
+        android:pathData="M0,165C70,140 140,146 200,160C260,174 310,150 360,148L360,220L0,220z" />
+
+    <!-- ===== 분리수거함 3개 ===== -->
+
+    <!-- 파랑 -->
+    <path
+        android:fillColor="#4A90D9"
+        android:pathData="M140,158h24l-2.5,34h-19z" />
+    <path
+        android:fillColor="#2F6FB8"
+        android:pathData="M138,152h28v6h-28zM147,148h10v4h-10z" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M152,163l6,10h-12z"
+        android:strokeWidth="1.6"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineJoin="round" />
+
+    <!-- 초록 -->
+    <path
+        android:fillColor="@color/primary_green"
+        android:pathData="M170,158h24l-2.5,34h-19z" />
+    <path
+        android:fillColor="@color/primary_green_dark"
+        android:pathData="M168,152h28v6h-28zM177,148h10v4h-10z" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M182,163l6,10h-12z"
+        android:strokeWidth="1.6"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineJoin="round" />
+
+    <!-- 노랑 -->
+    <path
+        android:fillColor="#F2B33D"
+        android:pathData="M200,158h24l-2.5,34h-19z" />
+    <path
+        android:fillColor="#D9952A"
+        android:pathData="M198,152h28v6h-28zM207,148h10v4h-10z" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M212,163l6,10h-12z"
+        android:strokeWidth="1.6"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineJoin="round" />
+
+    <!-- ===== 앞 언덕 (= 땅 색과 동일, 아래 View로 이어짐) ===== -->
+    <path
+        android:fillColor="@color/home_ground_top"
+        android:pathData="M0,190C80,172 160,176 230,188C290,198 330,184 360,180L360,220L0,220z" />
+
+    <!-- 덤불 -->
+    <path
+        android:fillColor="#8FD0AA"
+        android:pathData="M8,196a16,12 0 0,1 32,0z" />
+    <path
+        android:fillColor="#7CC79C"
+        android:pathData="M30,198a12,9 0 0,1 24,0z" />
+    <path
+        android:fillColor="#8FD0AA"
+        android:pathData="M296,196a14,11 0 0,1 28,0z" />
+    <path
+        android:fillColor="#7CC79C"
+        android:pathData="M318,198a11,8 0 0,1 22,0z" />
+</vector>

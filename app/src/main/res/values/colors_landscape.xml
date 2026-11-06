@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 앞 언덕 + 땅 시작 색 (두 곳이 반드시 같은 색이어야 경계선이 안 생김) -->
+    <color name="home_ground_top">#B4E3C7</color>
+    <!-- 땅 아래쪽 (하단바 근처) -->
+    <color name="home_ground_bottom">#E3F5EA</color>
+</resources>

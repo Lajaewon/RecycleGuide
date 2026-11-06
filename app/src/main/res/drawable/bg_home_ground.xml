@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 위: 앞 언덕과 같은 색 → 아래: 연하게 -->
+    <gradient
+        android:angle="270"
+        android:endColor="@color/home_ground_bottom"
+        android:startColor="@color/home_ground_top"
+        android:type="linear" />
+</shape>

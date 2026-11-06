@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
+
         // 상단/하단 시스템 바 상태에 맞게 여백 조절
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -47,3 +48,4 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 }
+
