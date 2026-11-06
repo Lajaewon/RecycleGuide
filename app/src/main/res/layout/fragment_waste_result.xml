@@ -1,267 +1,375 @@
-
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_green_light"
-    android:fillViewport="true">
+    android:paddingHorizontal="20dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="24dp">
 
+    <!-- 1. 상단 제목 -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="24dp">
+        android:id="@+id/layout_result_header"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- 1. 상단 제목 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+        <ImageButton
+            android:id="@+id/btn_back_result"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/result_back_description"
+            android:padding="8dp"
+            app:srcCompat="@drawable/ic_arrow_back_24"
+            app:tint="@color/text_main" />
 
-            <ImageButton
-                android:id="@+id/btn_back_result"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@android:color/transparent"
-                android:padding="8dp"
-                android:contentDescription="@string/result_back_description"
-                app:srcCompat="@drawable/ic_arrow_back_24"
-                app:tint="@color/text_main" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/ai_result_title"
-                android:textColor="@color/text_main"
-                android:textSize="19sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <!-- 2. 촬영 사진 및 AI 인식 결과 -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="0dp">
+            android:layout_marginStart="6dp"
+            android:text="@string/ai_result_title"
+            android:textColor="@color/text_main"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="12dp"
-                android:gravity="center_vertical">
+    </LinearLayout>
 
-                <!-- 실제 촬영 사진 -->
+    <!-- 2. 촬영 사진 + AI 인식 결과 카드
+         높이 0dp : 상단 제목 ~ 추가 확인 제목 사이의 남는 공간만 차지 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_waste_result"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="24dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@id/tv_condition_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_min="140dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_result_header"
+        app:strokeColor="#E1EEE6"
+        app:strokeWidth="1dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="12dp">
+
+            <!-- 왼쪽 : 촬영 사진 (둥근 모서리) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_photo"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:cardBackgroundColor="#EDF3EF"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.45"
+                app:strokeWidth="0dp">
+
                 <ImageView
                     android:id="@+id/iv_waste_photo"
-                    android:layout_width="112dp"
-                    android:layout_height="132dp"
-                    android:background="#EDF3EF"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:contentDescription="@string/waste_photo_description"
-                    android:scaleType="fitCenter" />
+                    android:scaleType="centerCrop" />
 
-                <!-- 인식 결과 정보 -->
-                <LinearLayout
-                    android:layout_width="0dp"
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 오른쪽 : 인식 결과 정보 (세로 가운데 정렬) -->
+            <LinearLayout
+                android:id="@+id/layout_result_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/card_photo"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <!-- 품목 이름 (서버 값) -->
+                <TextView
+                    android:id="@+id/tv_waste_type"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="14dp"
-                    android:orientation="vertical">
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:text="@string/ai_pending_title"
+                    android:textColor="@color/text_main"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tv_waste_type"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/ai_pending_title"
-                        android:textColor="@color/text_main"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_waste_analysis_message"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/ai_pending_message"
-                        android:textColor="@color/text_sub"
-                        android:textSize="12sp" />
+                <!-- 인식 확률 뱃지 (서버 값) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:cardBackgroundColor="@color/primary_green"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
 
                     <TextView
                         android:id="@+id/tv_waste_confidence"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="4dp"
                         android:text="@string/ai_pending_confidence"
-                        android:textColor="@color/primary_green"
+                        android:textColor="@color/white"
                         android:textSize="11sp"
                         android:textStyle="bold" />
 
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 분석 메시지 (서버 값) -->
+                <TextView
+                    android:id="@+id/tv_waste_analysis_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="3dp"
+                    android:maxLines="4"
+                    android:text="@string/ai_pending_message"
+                    android:textColor="@color/text_sub"
+                    android:textSize="13sp" />
 
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- 3. 상태 확인 제목 -->
-        <TextView
-            android:id="@+id/tv_condition_title"
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 3. 상태 확인 제목 -->
+    <TextView
+        android:id="@+id/tv_condition_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:text="@string/condition_title"
+        android:textColor="@color/text_main"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/tv_condition_description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_condition_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp"
+        android:lineSpacingExtra="3dp"
+        android:text="@string/condition_description"
+        android:textColor="@color/text_sub"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toTopOf="@id/card_question_contamination"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- 4. 첫 번째 상태 질문 : 이물질 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_question_contamination"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@id/card_question_remaining"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="#E1EEE6"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:text="@string/condition_title"
-            android:textColor="@color/text_main"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:lineSpacingExtra="3dp"
-            android:text="@string/condition_description"
-            android:textColor="@color/text_sub"
-            android:textSize="13sp" />
-
-        <!-- 4. 첫 번째 상태 질문 -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="14dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="14dp">
+                android:text="@string/question_contamination"
+                android:textColor="@color/text_main"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/question_contamination"
-                    android:textColor="@color/text_main"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+            <!-- 예 / 아니오 : 연한 초록 칸 안에 두 칸으로 나눔 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/bg_green_light"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
                 <RadioGroup
                     android:id="@+id/rg_contamination"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <RadioButton
                         android:id="@+id/rb_contamination_yes"
                         android:layout_width="0dp"
-                        android:layout_height="48dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
                         android:buttonTint="@color/primary_green"
                         android:gravity="center_vertical"
+                        android:paddingStart="6dp"
                         android:text="@string/answer_yes"
                         android:textColor="@color/text_main"
-                        android:textSize="13sp" />
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="22dp"
+                        android:background="#D5E5DB" />
 
                     <RadioButton
                         android:id="@+id/rb_contamination_no"
                         android:layout_width="0dp"
-                        android:layout_height="48dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
                         android:buttonTint="@color/primary_green"
                         android:gravity="center_vertical"
+                        android:paddingStart="6dp"
                         android:text="@string/answer_no"
                         android:textColor="@color/text_main"
-                        android:textSize="13sp" />
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                 </RadioGroup>
 
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-        </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
-        <!-- 5. 두 번째 상태 질문 -->
-        <com.google.android.material.card.MaterialCardView
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 5. 두 번째 상태 질문 : 내용물 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_question_remaining"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="#E1EEE6"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="14dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="0dp">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="14dp">
+                android:text="@string/question_remaining_contents"
+                android:textColor="@color/text_main"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/question_remaining_contents"
-                    android:textColor="@color/text_main"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+            <!-- 예 / 아니오 : 연한 초록 칸 안에 두 칸으로 나눔 -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/bg_green_light"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
                 <RadioGroup
                     android:id="@+id/rg_remaining_contents"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <RadioButton
                         android:id="@+id/rb_remaining_yes"
                         android:layout_width="0dp"
-                        android:layout_height="48dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
                         android:buttonTint="@color/primary_green"
                         android:gravity="center_vertical"
+                        android:paddingStart="6dp"
                         android:text="@string/answer_yes"
                         android:textColor="@color/text_main"
-                        android:textSize="13sp" />
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="22dp"
+                        android:background="#D5E5DB" />
 
                     <RadioButton
                         android:id="@+id/rb_remaining_no"
                         android:layout_width="0dp"
-                        android:layout_height="48dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
                         android:buttonTint="@color/primary_green"
                         android:gravity="center_vertical"
+                        android:paddingStart="6dp"
                         android:text="@string/answer_no"
                         android:textColor="@color/text_main"
-                        android:textSize="13sp" />
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                 </RadioGroup>
 
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-        </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
-        <!-- 6. 다음 버튼 -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_next"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="20dp"
-            android:text="@string/btn_next"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:backgroundTint="@color/primary_green"
-            app:cornerRadius="14dp" />
+    </com.google.android.material.card.MaterialCardView>
 
-    </LinearLayout>
+    <!-- 6. 다음 버튼 (하단바 위 24dp에 고정) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_next"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:backgroundTint="@color/primary_green"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:letterSpacing="0"
+        android:text="@string/btn_next"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-</androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
