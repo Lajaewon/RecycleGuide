@@ -42,6 +42,23 @@ class WasteResultFragment : Fragment() {
             view.findViewById<ImageView>(R.id.iv_waste_photo)
 
         displayPhoto(photoImageView)
+
+        // 다음 버튼 : 5번 화면(지역별 배출 정보)으로 이동
+        val nextButton =
+            view.findViewById<View>(R.id.btn_next)
+
+        nextButton.setOnClickListener {
+            moveToRegionInfo()
+        }
+    }
+
+    // 5번 화면(지역별 배출 정보)으로 이동하는 함수
+    private fun moveToRegionInfo() {
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, RegionInfoFragment())
+            .addToBackStack(null) // 뒤로 가기 시 4번 화면으로 돌아옴
+            .commit()
     }
 
     // 촬영한 사진을 읽고 회전 정보를 적용하는 함수

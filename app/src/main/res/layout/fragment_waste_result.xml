@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     android:background="@color/bg_green_light"
     android:paddingHorizontal="20dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="24dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="16dp">
 
     <!-- 1. 상단 제목 -->
     <LinearLayout
@@ -41,19 +41,20 @@
     </LinearLayout>
 
     <!-- 2. 촬영 사진 + AI 인식 결과 카드
-         높이 0dp : 상단 제목 ~ 추가 확인 제목 사이의 남는 공간만 차지 -->
+         높이 0dp : 상단 제목 ~ 추가 확인 제목 사이의 남는 공간만 차지
+         최소 높이 120dp : 화면이 짧은 폰에서도 위아래 요소와 겹치지 않게 -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_waste_result"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="20dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="20dp"
         app:cardElevation="0dp"
         app:layout_constraintBottom_toTopOf="@id/tv_condition_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_min="140dp"
+        app:layout_constraintHeight_min="120dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_result_header"
         app:strokeColor="#E1EEE6"
@@ -171,7 +172,7 @@
         android:id="@+id/tv_condition_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="14dp"
+        android:layout_marginBottom="10dp"
         android:lineSpacingExtra="3dp"
         android:text="@string/condition_description"
         android:textColor="@color/text_sub"
@@ -185,7 +186,7 @@
         android:id="@+id/card_question_contamination"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="10dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="18dp"
         app:cardElevation="0dp"
@@ -199,7 +200,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -213,7 +215,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 app:cardBackgroundColor="@color/bg_green_light"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
@@ -222,7 +224,7 @@
                 <RadioGroup
                     android:id="@+id/rg_contamination"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="44dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -272,7 +274,7 @@
         android:id="@+id/card_question_remaining"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="16dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="18dp"
         app:cardElevation="0dp"
@@ -286,7 +288,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -300,7 +303,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 app:cardBackgroundColor="@color/bg_green_light"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
@@ -309,7 +312,7 @@
                 <RadioGroup
                     android:id="@+id/rg_remaining_contents"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="44dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -354,11 +357,11 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 6. 다음 버튼 (하단바 위 24dp에 고정) -->
+    <!-- 6. 다음 버튼 (하단바 위 16dp에 고정) -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_next"
         android:layout_width="0dp"
-        android:layout_height="56dp"
+        android:layout_height="52dp"
         android:backgroundTint="@color/primary_green"
         android:insetTop="0dp"
         android:insetBottom="0dp"

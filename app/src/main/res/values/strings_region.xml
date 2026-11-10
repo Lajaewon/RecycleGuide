@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 고정 문구 -->
+    <string name="region_title">지역별 배출 정보</string>
+    <string name="region_back_description">뒤로 가기</string>
+    <string name="region_change_location">변경하기</string>
+    <string name="region_method_title">분리배출 방법</string>
+    <string name="region_schedule_day_label">배출 요일</string>
+    <string name="region_schedule_time_label">배출 시간</string>
+    <string name="region_schedule_place_label">배출 장소</string>
+    <string name="region_btn_retake">다시 촬영하기</string>
+
+    <!-- 예시 값 (나중에 서버 값으로 교체) -->
+    <string name="region_sample_category">재활용품</string>
+    <string name="region_sample_item">페트병</string>
+    <string name="region_sample_method">• 내용물은 비우고, 라벨은 제거해 주세요.\n• 찌그러뜨려서 배출해 주세요.\n• 음식물이나 이물질이 묻은 경우 일반쓰레기로 배출해야 합니다.</string>
+    <string name="region_sample_day">월요일, 목요일</string>
+    <string name="region_sample_time">오전 6시 ~ 오전 8시</string>
+    <string name="region_sample_place">지정된 재활용 거점 또는 아파트 분리수거장</string>
+</resources>

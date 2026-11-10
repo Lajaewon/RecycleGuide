@@ -40,7 +40,7 @@
             android:id="@+id/layout_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="88dp"
+            android:layout_marginTop="48dp"
             android:fontFamily="sans-serif-black"
             android:gravity="center"
             android:includeFontPadding="false"
@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="14dp"
             android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:lineSpacingExtra="6dp"
@@ -98,12 +98,14 @@
 
         <!-- 3-2. 풍경 일러스트
              가로 꽉 채움 + 비율 유지, 항상 촬영 버튼 바로 위에 붙음
+             marginTop -14dp : 그림 위쪽의 투명한 하늘 부분이 부제목 아래 여백과 겹치게 해서
+                               화면이 짧은 폰에서도 아래 요소가 한 화면에 들어오게 함
              translationY 1dp : 땅과 1dp 겹쳐서 틈이 생기지 않게 -->
         <ImageView
             android:id="@+id/iv_landscape"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="-14dp"
             android:adjustViewBounds="true"
             android:contentDescription="@null"
             android:scaleType="fitXY"
@@ -121,7 +123,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_marginHorizontal="24dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="12dp"
             android:backgroundTint="@color/primary_green"
             android:elevation="6dp"
             android:insetTop="0dp"
@@ -146,13 +148,13 @@
             app:rippleColor="#33FFFFFF"
             tools:targetApi="p" />
 
-        <!-- 5. 현재 위치 카드 (하단바 위 24dp에 고정) -->
+        <!-- 5. 현재 위치 카드 (하단바 위 12dp에 고정) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_location"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true"
             app:cardBackgroundColor="@color/white"

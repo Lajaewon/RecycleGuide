@@ -11,6 +11,14 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- 대략적인 위치 접근 -->
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- 정확한 위치 접근 -->
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION" />
+
 
 
     <application
