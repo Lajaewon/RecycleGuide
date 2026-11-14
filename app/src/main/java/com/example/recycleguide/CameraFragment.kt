@@ -43,25 +43,34 @@ import java.io.File
 
 class CameraFragment : Fragment(R.layout.fragment_camera) {
 
+    // ==================================================
     // 카메라 화면의 뷰
+    // ==================================================
+
     private var previewView: PreviewView? = null
     private var messageView: TextView? = null
     private var flashButton: ImageButton? = null
 
+
+    // ==================================================
     // CameraX 객체
+    // ==================================================
+
     private var cameraProvider: ProcessCameraProvider? = null
     private var camera: Camera? = null
     private var imageCapture: ImageCapture? = null
 
+
     // 기본 카메라는 후면 카메라
     private var lensFacing = CameraSelector.LENS_FACING_BACK
+
 
     // 플래시 상태
     private var flashEnabled = false
 
 
     // ==================================================
-    // [추가] 스마트폰 시스템 하단바 숨기기
+    // 스마트폰 시스템 하단바 숨기기
     // ==================================================
 
     private fun hideSystemNavigationBar() {
@@ -86,7 +95,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
 
     // ==================================================
-    // [추가] 스마트폰 시스템 하단바 다시 표시
+    // 스마트폰 시스템 하단바 다시 표시
     // ==================================================
 
     private fun showSystemNavigationBar() {
@@ -115,9 +124,14 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
         ) { granted ->
 
             if (granted) {
+
                 startCamera()
+
             } else {
-                showMessage("카메라 권한을 허용해야 사용할 수 있습니다.")
+
+                showMessage(
+                    "카메라 권한을 허용해야 사용할 수 있습니다."
+                )
             }
         }
 
@@ -140,7 +154,6 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                         "이미지를 선택했습니다.",
                         Toast.LENGTH_SHORT
                     ).show()
-
                 }
 
                 // 선택한 이미지 전달 기능은 추후 구현
@@ -232,7 +245,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
 
     // ==================================================
-    // [추가] 카메라 화면이 활성화될 때
+    // 카메라 화면이 활성화될 때
     // ==================================================
 
     override fun onResume() {
@@ -245,7 +258,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
 
     // ==================================================
-    // [추가] 카메라 화면이 일시적으로 중단될 때
+    // 카메라 화면이 일시적으로 중단될 때
     // ==================================================
 
     override fun onPause() {
@@ -490,11 +503,102 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                     if (!isAdded || view == null) return
 
 
+                    // HTTP 응답 성공 여부 확인
                     if (response.isSuccessful) {
 
                         val result = response.body()
 
                         if (result?.success == true) {
+
+
+                            // ==================================
+                            // 1. YOLO 분석 결과 추출
+                            // ==================================
+
+                            val prediction = result.prediction
+
+                            // 가장 신뢰도가 높은 탐지 결과
+                            val topPrediction =
+                                prediction?.topPrediction
+
+
+                            // ==================================
+                            // 2. Annotated 이미지 파일명 추출
+                            // ==================================
+
+                            val annotatedFilename =
+                                prediction?.annotatedFilename
+
+
+                            // ==================================
+                            // 3. Annotated 이미지 URL 생성
+                            // ==================================
+
+                            val annotatedImageUrl =
+                                annotatedFilename
+                                    ?.takeIf { it.isNotBlank() }
+                                    ?.let {
+                                        RetrofitClient.getAnnotatedImageUrl(it)
+                                    }
+
+
+                            // ==================================
+                            // 4. AI 분석 데이터 추출
+                            // ==================================
+
+                            // 폐기물 종류
+                            val wasteType =
+                                topPrediction?.className
+
+                            // AI 신뢰도
+                            val confidence =
+                                topPrediction?.confidence
+
+                            // 전체 탐지 개수
+                            val totalCount =
+                                prediction?.totalCount ?: 0
+
+                            // 객체 탐지 여부
+                            val detected =
+                                prediction?.detected == true
+
+
+                            // ==================================
+                            // 5. 분석 결과에 따른 안내 메시지
+                            // ==================================
+
+                            val analysisMessage = when {
+
+                                // AI 분석 과정에서 오류가 발생한 경우
+                                !prediction?.error.isNullOrBlank() -> {
+                                    "사진 업로드는 완료되었지만 AI 분석에 실패했습니다."
+                                }
+
+                                // 분석 결과 자체가 없는 경우
+                                prediction == null -> {
+                                    "AI 분석 결과를 받지 못했습니다."
+                                }
+
+                                // 폐기물 종류까지 정상적으로 감지한 경우
+                                detected && !wasteType.isNullOrBlank() -> {
+                                    "AI가 ${wasteType} 폐기물 ${totalCount}개를 감지했습니다."
+                                }
+
+                                // 객체는 감지했지만 종류를 확인할 수 없는 경우
+                                detected -> {
+                                    "폐기물은 감지했지만 세부 정보를 확인할 수 없습니다."
+                                }
+
+                                // 감지된 객체가 없는 경우
+                                else -> {
+                                    "사진에서 폐기물을 감지하지 못했습니다."
+                                }
+                            }
+
+
+                            // ==================================
+                            // 6. 서버 응답 로그 확인
+                            // ==================================
 
                             Log.d(
                                 TAG,
@@ -506,19 +610,51 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                                 "파일 크기: ${result.sizeBytes} bytes"
                             )
 
+                            Log.d(
+                                TAG,
+                                "YOLO 탐지 결과: $wasteType"
+                            )
+
+                            Log.d(
+                                TAG,
+                                "신뢰도: $confidence"
+                            )
+
+                            Log.d(
+                                TAG,
+                                "감지 개수: $totalCount"
+                            )
+
+                            Log.d(
+                                TAG,
+                                "Annotated 이미지 URL: $annotatedImageUrl"
+                            )
+
 
                             Toast.makeText(
                                 requireContext(),
-                                "서버에 사진 업로드 성공!",
+                                "사진 업로드 및 분석 요청 완료!",
                                 Toast.LENGTH_SHORT
                             ).show()
 
 
-                            // 업로드 성공 후 결과 화면으로 이동
-                            navigateToResult(photoFile)
+                            // ==================================
+                            // 7. 결과 화면으로 분석 데이터 전달
+                            // ==================================
+
+                            navigateToResult(
+                                photoFile = photoFile,
+                                annotatedImageUrl = annotatedImageUrl,
+                                wasteType = wasteType,
+                                confidence = confidence,
+                                totalCount = totalCount,
+                                detected = detected,
+                                analysisMessage = analysisMessage
+                            )
 
                         } else {
 
+                            // 서버에서 업로드 실패 응답을 받은 경우
                             Log.e(
                                 TAG,
                                 "서버 응답 실패: ${result?.message}"
@@ -532,6 +668,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
                     } else {
 
+                        // HTTP 오류
                         val errorMessage =
                             response.errorBody()?.string()
 
@@ -579,18 +716,46 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
 
     // ==================================================
-    // 사진 업로드 성공 후 결과 화면으로 이동
+    // 사진 업로드 및 AI 분석 결과를 결과 화면으로 전달
     // ==================================================
 
-    private fun navigateToResult(photoFile: File) {
+    private fun navigateToResult(
+        photoFile: File,
+        annotatedImageUrl: String?,
+        wasteType: String?,
+        confidence: Double?,
+        totalCount: Int,
+        detected: Boolean,
+        analysisMessage: String
+    ) {
 
         if (!isAdded || view == null) return
 
 
-        // 결과 프래그먼트 생성 및 사진 경로 전달
+        // 결과 프래그먼트 생성 및 데이터 전달
         val resultFragment =
             WasteResultFragment.newInstance(
-                photoFile.absolutePath
+
+                // 원본 사진 경로
+                photoPath = photoFile.absolutePath,
+
+                // YOLO가 생성한 바운딩 박스 이미지 URL
+                annotatedImageUrl = annotatedImageUrl,
+
+                // 폐기물 종류
+                wasteType = wasteType,
+
+                // AI 신뢰도
+                confidence = confidence,
+
+                // 전체 탐지 개수
+                totalCount = totalCount,
+
+                // 객체 탐지 여부
+                detected = detected,
+
+                // AI 분석 메시지
+                analysisMessage = analysisMessage
             )
 
 
