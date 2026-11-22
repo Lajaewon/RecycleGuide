@@ -10,7 +10,7 @@ object RetrofitClient {
 
     // 현재 정상 통신 중인 서버 주소 (그대로 유지)
     private const val BASE_URL =
-        "http://172.17.63.6:8000/"
+        "http://192.168.22.181:8000/"
 
     // Retrofit 통신 객체 생성
     val api: WasteApiService by lazy {

@@ -644,6 +644,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
                             navigateToResult(
                                 photoFile = photoFile,
+                                serverFilename = result.filename,
                                 annotatedImageUrl = annotatedImageUrl,
                                 wasteType = wasteType,
                                 confidence = confidence,
@@ -721,6 +722,7 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
     private fun navigateToResult(
         photoFile: File,
+        serverFilename: String,
         annotatedImageUrl: String?,
         wasteType: String?,
         confidence: Double?,
@@ -735,26 +737,13 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
         // 결과 프래그먼트 생성 및 데이터 전달
         val resultFragment =
             WasteResultFragment.newInstance(
-
-                // 원본 사진 경로
                 photoPath = photoFile.absolutePath,
-
-                // YOLO가 생성한 바운딩 박스 이미지 URL
+                serverFilename = serverFilename,
                 annotatedImageUrl = annotatedImageUrl,
-
-                // 폐기물 종류
                 wasteType = wasteType,
-
-                // AI 신뢰도
                 confidence = confidence,
-
-                // 전체 탐지 개수
                 totalCount = totalCount,
-
-                // 객체 탐지 여부
                 detected = detected,
-
-                // AI 분석 메시지
                 analysisMessage = analysisMessage
             )
 
