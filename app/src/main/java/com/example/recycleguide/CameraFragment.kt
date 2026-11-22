@@ -1,6 +1,6 @@
 
 package com.example.recycleguide
-
+import com.google.gson.Gson
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -517,9 +517,24 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
 
                             val prediction = result.prediction
 
-                            // 가장 신뢰도가 높은 탐지 결과
+                            // 가장 신뢰도가 높은 대표 객체
+                            // 기존 기능과의 호환성을 위해 유지
                             val topPrediction =
                                 prediction?.topPrediction
+
+                            // YOLO가 탐지한 전체 객체 목록
+                            val predictions =
+                                prediction?.predictions.orEmpty()
+
+                            // 객체 목록을 Gson을 이용해 JSON 문자열로 변환
+                            val predictionsJson =
+                                Gson().toJson(predictions)
+
+                            // 전체 탐지 객체 개수 로그
+                            Log.d(
+                                TAG,
+                                "전체 YOLO 탐지 객체 수: ${predictions.size}"
+                            )
 
 
                             // ==================================
@@ -650,7 +665,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                                 confidence = confidence,
                                 totalCount = totalCount,
                                 detected = detected,
-                                analysisMessage = analysisMessage
+                                analysisMessage = analysisMessage,
+                                predictionsJson = predictionsJson
                             )
 
                         } else {
@@ -728,7 +744,8 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
         confidence: Double?,
         totalCount: Int,
         detected: Boolean,
-        analysisMessage: String
+        analysisMessage: String,
+        predictionsJson: String
     ) {
 
         if (!isAdded || view == null) return
@@ -744,7 +761,9 @@ class CameraFragment : Fragment(R.layout.fragment_camera) {
                 confidence = confidence,
                 totalCount = totalCount,
                 detected = detected,
-                analysisMessage = analysisMessage
+                analysisMessage = analysisMessage,
+                predictionsJson = predictionsJson
+
             )
 
 

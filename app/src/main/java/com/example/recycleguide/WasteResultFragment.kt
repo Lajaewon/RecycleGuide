@@ -21,10 +21,18 @@ import java.util.Locale
 import com.example.recycleguide.network.RetrofitClient
 import com.example.recycleguide.network.WasteGuideRequest
 import com.example.recycleguide.network.WasteGuideResponse
+import com.example.recycleguide.network.WasteDetection
 
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
+import android.graphics.Typeface
+import android.view.Gravity
+import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 
 
 class WasteResultFragment : Fragment() {
@@ -48,6 +56,9 @@ class WasteResultFragment : Fragment() {
     private var detected: Boolean = false
 
     private var analysisMessage: String? = null
+
+    // YOLO가 탐지한 전체 객체 목록
+    private var predictions: List<WasteDetection> = emptyList()
 
 
     // ==================================================
@@ -86,6 +97,35 @@ class WasteResultFragment : Fragment() {
 
             serverFilename =
                 args.getString(ARG_SERVER_FILENAME)
+
+            // CameraFragment에서 전달한 YOLO 객체 목록 JSON
+            val predictionsJson =
+                args.getString(ARG_PREDICTIONS_JSON)
+
+// JSON 문자열을 Kotlin 객체 목록으로 변환
+            predictions = try {
+
+                if (predictionsJson.isNullOrBlank()) {
+
+                    emptyList()
+
+                } else {
+
+                    val listType =
+                        object : TypeToken<List<WasteDetection>>() {}.type
+
+                    Gson().fromJson<List<WasteDetection>>(
+                        predictionsJson,
+                        listType
+                    ) ?: emptyList()
+                }
+
+            } catch (e: Exception) {
+
+                Log.e(TAG, "YOLO 객체 목록 변환 실패", e)
+
+                emptyList()
+            }
         }
     }
 
@@ -136,6 +176,11 @@ class WasteResultFragment : Fragment() {
         val analysisMessageView =
             view.findViewById<TextView>(R.id.tv_waste_analysis_message)
 
+        val objectConfidenceContainer =
+            view.findViewById<LinearLayout>(
+                R.id.layout_object_confidence
+            )
+
 
         // ----------------------------------------------
         // 2. YOLO 분석 이미지 표시
@@ -148,7 +193,21 @@ class WasteResultFragment : Fragment() {
         // 3. 폐기물 종류 표시
         // ----------------------------------------------
 
+        // ----------------------------------------------
+// 3. 인식된 폐기물 종류 전체 표시
+// ----------------------------------------------
+
+// 종류별 중복 제거
+        val detectedTypes = predictions
+            .mapNotNull { it.className }
+            .filter { it.isNotBlank() }
+            .distinct()
+
         wasteTypeView.text = when {
+
+            detected && detectedTypes.isNotEmpty() -> {
+                detectedTypes.joinToString(" · ")
+            }
 
             detected && !wasteType.isNullOrBlank() -> {
                 wasteType
@@ -164,43 +223,75 @@ class WasteResultFragment : Fragment() {
         }
 
 
-        // ----------------------------------------------
-        // 4. AI 신뢰도 표시
-        // ----------------------------------------------
+// ----------------------------------------------
+// 4. 전체 객체 탐지 개수 표시
+// ----------------------------------------------
 
-        confidenceView.text =
-            if (detected && confidence != null) {
+        val detectedObjectCount = predictions.size
 
-                String.format(
-                    Locale.KOREA,
-                    "AI 신뢰도: %.2f%%",
-                    confidence!! * 100.0
-                )
+        confidenceView.text = when {
+
+            detectedObjectCount > 0 -> {
+                "총 ${detectedObjectCount}개 객체 탐지"
+            }
+
+            detected && totalCount > 0 -> {
+                "총 ${totalCount}개 객체 탐지"
+            }
+
+            else -> {
+                "탐지된 객체 없음"
+            }
+        }
+
+
+// ----------------------------------------------
+// 5. 종류별 검출 개수 표시
+// ----------------------------------------------
+
+// 종류별 개수를 저장할 Map
+        val typeCounts = linkedMapOf<String, Int>()
+
+        predictions.forEach { detection ->
+
+            val className = detection.className
+                ?.takeIf { it.isNotBlank() }
+                ?: return@forEach
+
+            typeCounts[className] =
+                (typeCounts[className] ?: 0) + 1
+        }
+
+// 종류별 검출 개수 문자열 생성
+        analysisMessageView.text =
+
+            if (typeCounts.isNotEmpty()) {
+
+                typeCounts.entries.joinToString(" · ") {
+                    "${it.key} ${it.value}개"
+                }
 
             } else {
 
-                "AI 신뢰도: 확인 불가"
+                analysisMessage
+                    ?: "종류별 검출 정보를 확인할 수 없습니다."
             }
 
 
-        // ----------------------------------------------
-        // 5. 분석 메시지 표시
-        // ----------------------------------------------
+// ----------------------------------------------
+// 6. 객체별 신뢰도 목록 생성
+// ----------------------------------------------
 
-        analysisMessageView.text =
-            analysisMessage ?: "분석 결과를 확인할 수 없습니다."
-
+        displayObjectConfidences(objectConfidenceContainer)
 
         // ----------------------------------------------
-        // 6. 다음 버튼
-        // ----------------------------------------------
+// 7. 다음 버튼
+// ----------------------------------------------
 
         view.findViewById<View>(R.id.btn_next)
             .setOnClickListener {
-
                 submitAnswers()
             }
-
 
         // ----------------------------------------------
         // 7. 뒤로 가기 버튼
@@ -212,6 +303,183 @@ class WasteResultFragment : Fragment() {
                 parentFragmentManager.popBackStack()
             }
     }
+
+    // ==================================================
+// YOLO 객체별 신뢰도 목록 생성
+// ==================================================
+
+    private fun displayObjectConfidences(
+        container: LinearLayout
+    ) {
+
+        // 기존 목록 초기화
+        container.removeAllViews()
+
+
+        // 탐지 결과가 없는 경우
+        if (predictions.isEmpty()) {
+
+            val emptyView = TextView(requireContext()).apply {
+
+                text = "탐지된 객체 정보가 없습니다."
+
+                textSize = 12f
+
+                setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.text_sub
+                    )
+                )
+            }
+
+            container.addView(emptyView)
+
+            return
+        }
+
+
+        // YOLO 탐지 결과를 하나씩 반복
+        predictions.forEachIndexed { index, detection ->
+
+
+            // ------------------------------------------
+            // 1. 객체 한 개를 표시할 가로 레이아웃
+            // ------------------------------------------
+
+            val row = LinearLayout(requireContext()).apply {
+
+                orientation = LinearLayout.HORIZONTAL
+
+                gravity = Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    0,
+                    dpToPxForResult(5),
+                    0,
+                    dpToPxForResult(5)
+                )
+
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+
+
+            // ------------------------------------------
+            // 2. 객체 번호와 폐기물 종류
+            // ------------------------------------------
+
+            val objectNameView = TextView(requireContext()).apply {
+
+                text = "객체 ${index + 1} · ${
+                    detection.className ?: "종류 확인 불가"
+                }"
+
+                textSize = 12f
+
+                setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.text_sub
+                    )
+                )
+
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
+            }
+
+
+            // ------------------------------------------
+            // 3. 객체별 AI 신뢰도
+            // ------------------------------------------
+
+            val confidenceView = TextView(requireContext()).apply {
+
+                text = detection.confidence?.let {
+
+                    String.format(
+                        Locale.KOREA,
+                        "%.2f%%",
+                        it * 100.0
+                    )
+
+                } ?: "확인 불가"
+
+                textSize = 12f
+
+                gravity = Gravity.END
+
+                setTypeface(null, Typeface.BOLD)
+
+                setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.text_main
+                    )
+                )
+            }
+
+
+            // ------------------------------------------
+            // 4. 가로 레이아웃에 TextView 추가
+            // ------------------------------------------
+
+            row.addView(objectNameView)
+
+            row.addView(confidenceView)
+
+
+            // ------------------------------------------
+            // 5. 최종 목록에 추가
+            // ------------------------------------------
+
+            container.addView(row)
+
+
+            // ------------------------------------------
+            // 6. 객체 사이 구분선
+            // ------------------------------------------
+
+            if (index < predictions.lastIndex) {
+
+                val divider = View(requireContext()).apply {
+
+                    setBackgroundColor(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            R.color.bg_green_light
+                        )
+                    )
+                }
+
+                container.addView(
+                    divider,
+                    LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        dpToPxForResult(1)
+                    )
+                )
+            }
+        }
+    }
+
+
+// ==================================================
+// DP를 PX로 변환
+// ==================================================
+
+    private fun dpToPxForResult(dp: Int): Int {
+
+        return (
+                dp * resources.displayMetrics.density
+                ).toInt()
+    }
+
 
 
     // ==================================================
@@ -544,6 +812,9 @@ class WasteResultFragment : Fragment() {
         private const val ARG_SERVER_FILENAME =
             "server_filename"
 
+        private const val ARG_PREDICTIONS_JSON =
+            "predictions_json"
+
 
         fun newInstance(
             photoPath: String,
@@ -553,7 +824,8 @@ class WasteResultFragment : Fragment() {
             totalCount: Int,
             detected: Boolean,
             analysisMessage: String,
-            serverFilename: String
+            serverFilename: String,
+            predictionsJson: String = "[]"
         ): WasteResultFragment {
 
             return WasteResultFragment().apply {
@@ -596,6 +868,11 @@ class WasteResultFragment : Fragment() {
                     putString(
                         ARG_SERVER_FILENAME,
                         serverFilename
+                    )
+
+                    putString(
+                        ARG_PREDICTIONS_JSON,
+                        predictionsJson
                     )
                 }
             }
