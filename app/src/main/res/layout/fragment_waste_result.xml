@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -40,21 +41,17 @@
 
     </LinearLayout>
 
-    <!-- 2. 촬영 사진 + AI 인식 결과 카드
-         높이 0dp : 상단 제목 ~ 추가 확인 제목 사이의 남는 공간만 차지
-         최소 높이 120dp : 화면이 짧은 폰에서도 위아래 요소와 겹치지 않게 -->
+
+    <!-- 2. 촬영 사진 및 AI 분석 결과 카드 -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_waste_result"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="220dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="20dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="20dp"
         app:cardElevation="0dp"
-        app:layout_constraintBottom_toTopOf="@id/tv_condition_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_min="120dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_result_header"
         app:strokeColor="#E1EEE6"
@@ -65,7 +62,7 @@
             android:layout_height="match_parent"
             android:padding="12dp">
 
-            <!-- 왼쪽 : 촬영 사진 (둥근 모서리) -->
+            <!-- 왼쪽 : 분석 이미지 -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_photo"
                 android:layout_width="0dp"
@@ -88,9 +85,8 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 오른쪽 : 인식 결과 정보 (세로 가운데 정렬) -->
 
-            <!-- 오른쪽 : AI 인식 결과 정보 -->
+            <!-- 오른쪽 : AI 분석 결과 -->
             <LinearLayout
                 android:id="@+id/layout_result_info"
                 android:layout_width="0dp"
@@ -114,7 +110,7 @@
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
-                <!-- 전체 객체 탐지 개수 -->
+                <!-- 전체 탐지 개수 / 객체별 신뢰도 -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -150,7 +146,7 @@
                     android:textColor="@color/text_sub"
                     android:textSize="12sp" />
 
-                <!-- 객체별 신뢰도 목록 : 세로 스크롤 -->
+                <!-- 객체별 신뢰도 목록 -->
                 <ScrollView
                     android:id="@+id/scroll_object_confidence"
                     android:layout_width="match_parent"
@@ -160,7 +156,6 @@
                     android:fillViewport="false"
                     android:scrollbars="vertical">
 
-                    <!-- Kotlin에서 객체 수만큼 항목을 동적으로 추가 -->
                     <LinearLayout
                         android:id="@+id/layout_object_confidence"
                         android:layout_width="match_parent"
@@ -171,25 +166,28 @@
 
             </LinearLayout>
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
+
 
     <!-- 3. 상태 확인 제목 -->
     <TextView
         android:id="@+id/tv_condition_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="6dp"
         android:text="@string/condition_title"
         android:textColor="@color/text_main"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/tv_condition_description"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/card_waste_result" />
 
+
+    <!-- 4. 상태 확인 설명 -->
     <TextView
         android:id="@+id/tv_condition_description"
         android:layout_width="0dp"
@@ -199,187 +197,35 @@
         android:text="@string/condition_description"
         android:textColor="@color/text_sub"
         android:textSize="13sp"
-        app:layout_constraintBottom_toTopOf="@id/card_question_contamination"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- 4. 첫 번째 상태 질문 : 이물질 -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_question_contamination"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="0dp"
-        app:layout_constraintBottom_toTopOf="@id/card_question_remaining"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:strokeColor="#E1EEE6"
-        app:strokeWidth="1dp">
+        app:layout_constraintTop_toBottomOf="@id/tv_condition_title" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="14dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/question_contamination"
-                android:textColor="@color/text_main"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <!-- 예 / 아니오 : 연한 초록 칸 안에 두 칸으로 나눔 -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@color/bg_green_light"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
-
-                <RadioGroup
-                    android:id="@+id/rg_contamination"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rb_contamination_yes"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="?attr/selectableItemBackground"
-                        android:buttonTint="@color/primary_green"
-                        android:gravity="center_vertical"
-                        android:paddingStart="6dp"
-                        android:text="@string/answer_yes"
-                        android:textColor="@color/text_main"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="22dp"
-                        android:background="#D5E5DB" />
-
-                    <RadioButton
-                        android:id="@+id/rb_contamination_no"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="?attr/selectableItemBackground"
-                        android:buttonTint="@color/primary_green"
-                        android:gravity="center_vertical"
-                        android:paddingStart="6dp"
-                        android:text="@string/answer_no"
-                        android:textColor="@color/text_main"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                </RadioGroup>
-
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- 5. 두 번째 상태 질문 : 내용물 -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_question_remaining"
+    <!-- 5. 객체별 질문 목록 스크롤 영역 -->
+    <ScrollView
+        android:id="@+id/scroll_object_questions"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="12dp"
+        android:fillViewport="false"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toTopOf="@id/btn_next"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:strokeColor="#E1EEE6"
-        app:strokeWidth="1dp">
+        app:layout_constraintTop_toBottomOf="@id/tv_condition_description">
 
+        <!-- 탐지된 객체 목록을 담는 컨테이너 -->
         <LinearLayout
+            android:id="@+id/layout_object_questions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="14dp">
+            android:orientation="vertical" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/question_remaining_contents"
-                android:textColor="@color/text_main"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+    </ScrollView>
 
-            <!-- 예 / 아니오 : 연한 초록 칸 안에 두 칸으로 나눔 -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@color/bg_green_light"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
 
-                <RadioGroup
-                    android:id="@+id/rg_remaining_contents"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rb_remaining_yes"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="?attr/selectableItemBackground"
-                        android:buttonTint="@color/primary_green"
-                        android:gravity="center_vertical"
-                        android:paddingStart="6dp"
-                        android:text="@string/answer_yes"
-                        android:textColor="@color/text_main"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="22dp"
-                        android:background="#D5E5DB" />
-
-                    <RadioButton
-                        android:id="@+id/rb_remaining_no"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="?attr/selectableItemBackground"
-                        android:buttonTint="@color/primary_green"
-                        android:gravity="center_vertical"
-                        android:paddingStart="6dp"
-                        android:text="@string/answer_no"
-                        android:textColor="@color/text_main"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                </RadioGroup>
-
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- 6. 다음 버튼 (하단바 위 16dp에 고정) -->
+    <!-- 6. 다음 버튼 : 하단 고정 -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_next"
         android:layout_width="0dp"
@@ -396,5 +242,50 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+
+    <!-- 7. 기존 단일 객체 답변 코드 호환용 숨김 영역
+         기존 submitAnswers() 제거 후 함께 삭제할 예정 -->
+    <LinearLayout
+        android:id="@+id/layout_legacy_questions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <RadioGroup
+            android:id="@+id/rg_contamination"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rb_contamination_yes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/rb_contamination_no"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </RadioGroup>
+
+        <RadioGroup
+            android:id="@+id/rg_remaining_contents"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rb_remaining_yes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/rb_remaining_no"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </RadioGroup>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

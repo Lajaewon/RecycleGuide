@@ -1,6 +1,6 @@
 
 package com.example.recycleguide
-
+import com.example.recycleguide.network.WasteObjectConditionRequest
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -59,6 +59,47 @@ class WasteResultFragment : Fragment() {
 
     // YOLO가 탐지한 전체 객체 목록
     private var predictions: List<WasteDetection> = emptyList()
+
+    // ==================================================
+// 객체별 질문 및 답변 관리
+// ==================================================
+
+    // 객체별 질문 화면 정보
+    private data class ObjectQuestionInput(
+
+        // YOLO predictions 배열의 순서
+        val predictionIndex: Int,
+
+        // 질문 영역
+        val detailsView: View,
+
+        // 펼치기 / 접기 표시
+        val expandIndicatorView: TextView,
+
+        // 답변 완료 상태 표시
+        val statusView: TextView,
+
+        // 오염 여부 RadioGroup
+        val contaminationGroup: RadioGroup,
+
+        // 내용물 잔여 여부 RadioGroup
+        val remainingGroup: RadioGroup,
+
+        // 예 버튼 ID
+        val contaminationYesId: Int,
+
+        val remainingYesId: Int
+    )
+
+    // 서버로 전달할 객체별 답변 구조
+
+
+    // 객체별 질문 목록
+    private val objectQuestionInputs =
+        mutableListOf<ObjectQuestionInput>()
+
+    // 현재 펼쳐진 객체의 인덱스
+    private var expandedObjectIndex: Int? = null
 
 
     // ==================================================
@@ -181,6 +222,12 @@ class WasteResultFragment : Fragment() {
                 R.id.layout_object_confidence
             )
 
+        // 객체별 질문 목록을 담을 컨테이너
+        val objectQuestionContainer =
+            view.findViewById<LinearLayout>(
+                R.id.layout_object_questions
+            )
+
 
         // ----------------------------------------------
         // 2. YOLO 분석 이미지 표시
@@ -285,12 +332,19 @@ class WasteResultFragment : Fragment() {
         displayObjectConfidences(objectConfidenceContainer)
 
         // ----------------------------------------------
+// 7. 객체별 상태 질문 목록 생성
+// ----------------------------------------------
+
+        displayObjectQuestions(objectQuestionContainer)
+
+
+        // ----------------------------------------------
 // 7. 다음 버튼
 // ----------------------------------------------
 
         view.findViewById<View>(R.id.btn_next)
             .setOnClickListener {
-                submitAnswers()
+                submitObjectAnswers()
             }
 
         // ----------------------------------------------
@@ -481,6 +535,357 @@ class WasteResultFragment : Fragment() {
     }
 
 
+// ==================================================
+// 객체별 상태 질문 목록 생성
+// ==================================================
+
+    private fun displayObjectQuestions(
+        container: LinearLayout
+    ) {
+
+        // 기존 목록 초기화
+        container.removeAllViews()
+
+        objectQuestionInputs.clear()
+
+        expandedObjectIndex = null
+
+
+        // 탐지된 객체가 없는 경우
+        if (predictions.isEmpty()) {
+
+            val emptyView = TextView(requireContext()).apply {
+
+                text = "탐지된 폐기물 객체가 없습니다."
+
+                textSize = 13f
+
+                setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.text_sub
+                    )
+                )
+            }
+
+            container.addView(emptyView)
+
+            updateNextButtonState()
+
+            return
+        }
+
+
+        // YOLO가 탐지한 객체 수만큼 목록 생성
+        predictions.forEachIndexed { index, detection ->
+
+            // 1. 객체 목록 XML 불러오기
+            val itemView = LayoutInflater.from(requireContext())
+                .inflate(
+                    R.layout.item_waste_object_question,
+                    container,
+                    false
+                )
+
+
+            // 2. 객체 번호
+            val numberView =
+                itemView.findViewById<TextView>(
+                    R.id.tv_object_number
+                )
+
+            numberView.text = (index + 1).toString()
+
+
+            // 3. 폐기물 종류
+            val titleView =
+                itemView.findViewById<TextView>(
+                    R.id.tv_object_title
+                )
+
+            titleView.text =
+                detection.className ?: "종류 확인 불가"
+
+
+            // 4. AI 신뢰도
+            val confidenceView =
+                itemView.findViewById<TextView>(
+                    R.id.tv_object_confidence
+                )
+
+            confidenceView.text =
+                detection.confidence?.let {
+
+                    String.format(
+                        Locale.KOREA,
+                        "AI 신뢰도 %.2f%%",
+                        it * 100.0
+                    )
+
+                } ?: "AI 신뢰도 확인 불가"
+
+
+            // 5. 객체 상태 표시
+            val statusView =
+                itemView.findViewById<TextView>(
+                    R.id.tv_object_status
+                )
+
+
+            // 6. 펼치기 표시
+            val expandIndicatorView =
+                itemView.findViewById<TextView>(
+                    R.id.tv_object_expand_indicator
+                )
+
+
+            // 7. 질문 영역
+            val detailsView =
+                itemView.findViewById<View>(
+                    R.id.layout_object_details
+                )
+
+
+            // 8. 오염 여부 RadioGroup
+            val contaminationGroup =
+                itemView.findViewById<RadioGroup>(
+                    R.id.rg_object_contamination
+                )
+
+
+            val contaminationYes =
+                itemView.findViewById<View>(
+                    R.id.rb_object_contamination_yes
+                )
+
+
+            // 9. 내용물 잔여 여부 RadioGroup
+            val remainingGroup =
+                itemView.findViewById<RadioGroup>(
+                    R.id.rg_object_remaining
+                )
+
+
+            val remainingYes =
+                itemView.findViewById<View>(
+                    R.id.rb_object_remaining_yes
+                )
+
+
+            // 10. 객체별 입력 데이터 저장
+            val input = ObjectQuestionInput(
+
+                predictionIndex = index,
+
+                detailsView = detailsView,
+
+                expandIndicatorView = expandIndicatorView,
+
+                statusView = statusView,
+
+                contaminationGroup = contaminationGroup,
+
+                remainingGroup = remainingGroup,
+
+                contaminationYesId = contaminationYes.id,
+
+                remainingYesId = remainingYes.id
+            )
+
+            objectQuestionInputs.add(input)
+
+
+            // 11. 객체 목록 클릭 이벤트
+            itemView.findViewById<View>(
+                R.id.layout_object_header
+            ).setOnClickListener {
+
+                toggleObjectDetails(index)
+            }
+
+
+            // 12. 오염 여부 변경 감지
+            contaminationGroup.setOnCheckedChangeListener {
+                    _, _ ->
+
+                updateObjectStatus(input)
+            }
+
+
+            // 13. 내용물 잔여 여부 변경 감지
+            remainingGroup.setOnCheckedChangeListener {
+                    _, _ ->
+
+                updateObjectStatus(input)
+            }
+
+
+            // 14. 최종 목록에 추가
+            container.addView(itemView)
+
+
+            Log.d(
+                TAG,
+                "객체 ${index + 1} 목록 생성: ${detection.className}"
+            )
+        }
+
+
+        // 첫 번째 객체 질문을 기본적으로 펼치기
+        objectQuestionInputs.firstOrNull()?.let {
+
+            it.detailsView.visibility = View.VISIBLE
+
+            it.expandIndicatorView.text = "⌃"
+
+            expandedObjectIndex = 0
+        }
+
+
+        // 다음 버튼 활성화 상태 갱신
+        updateNextButtonState()
+
+
+        Log.d(
+            TAG,
+            "전체 객체 목록 생성 완료: ${objectQuestionInputs.size}개"
+        )
+    }
+
+
+// ==================================================
+// 객체별 질문 펼치기 / 접기
+// ==================================================
+
+    private fun toggleObjectDetails(index: Int) {
+
+        val selectedInput =
+            objectQuestionInputs.getOrNull(index) ?: return
+
+
+        // 이미 펼쳐진 객체를 다시 누른 경우
+        if (expandedObjectIndex == index) {
+
+            selectedInput.detailsView.visibility = View.GONE
+
+            selectedInput.expandIndicatorView.text = "⌄"
+
+            expandedObjectIndex = null
+
+            return
+        }
+
+
+        // 기존에 펼쳐진 객체 접기
+        expandedObjectIndex?.let { previousIndex ->
+
+            val previousInput =
+                objectQuestionInputs.getOrNull(previousIndex)
+
+            previousInput?.detailsView?.visibility = View.GONE
+
+            previousInput?.expandIndicatorView?.text = "⌄"
+        }
+
+
+        // 선택한 객체 펼치기
+        selectedInput.detailsView.visibility = View.VISIBLE
+
+        selectedInput.expandIndicatorView.text = "⌃"
+
+        expandedObjectIndex = index
+    }
+
+
+// ==================================================
+// 객체별 답변 완료 상태 갱신
+// ==================================================
+
+    private fun updateObjectStatus(
+        input: ObjectQuestionInput
+    ) {
+
+        val contaminationAnswered =
+            input.contaminationGroup.checkedRadioButtonId != -1
+
+        val remainingAnswered =
+            input.remainingGroup.checkedRadioButtonId != -1
+
+
+        when {
+
+            // 질문 두 개 모두 답변한 경우
+            contaminationAnswered && remainingAnswered -> {
+
+                input.statusView.text = "완료"
+
+                input.statusView.setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.primary_green
+                    )
+                )
+            }
+
+            // 질문 중 하나만 답변한 경우
+            contaminationAnswered || remainingAnswered -> {
+
+                input.statusView.text = "입력 중"
+
+                input.statusView.setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.text_sub
+                    )
+                )
+            }
+
+            // 아직 답변하지 않은 경우
+            else -> {
+
+                input.statusView.text = "미입력"
+
+                input.statusView.setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.text_sub
+                    )
+                )
+            }
+        }
+
+
+        // 전체 객체의 답변 상태 확인
+        updateNextButtonState()
+    }
+
+
+// ==================================================
+// 다음 버튼 활성화 상태 관리
+// ==================================================
+
+    private fun updateNextButtonState() {
+
+        val nextButton =
+            view?.findViewById<View>(R.id.btn_next)
+                ?: return
+
+
+        // 모든 객체의 질문에 답변했는지 확인
+        val allAnswered =
+            objectQuestionInputs.isNotEmpty() &&
+                    objectQuestionInputs.all { input ->
+
+                        input.contaminationGroup.checkedRadioButtonId != -1 &&
+                                input.remainingGroup.checkedRadioButtonId != -1
+                    }
+
+
+        nextButton.isEnabled = allAnswered
+    }
+
+
+
 
     // ==================================================
     // Annotated 이미지 표시
@@ -533,56 +938,31 @@ class WasteResultFragment : Fragment() {
 
 
     // ==================================================
-    // 라디오 버튼 답변 수집
-    // ==================================================
+// 객체별 답변 수집 및 검증
+// ==================================================
 
 
-    private fun submitAnswers() {
+    private fun submitObjectAnswers() {
 
         val currentView = view ?: return
 
         // ==========================================
-        // 1. RadioGroup 가져오기
+        // 1. 모든 객체의 답변 여부 확인
         // ==========================================
 
-        val contaminationGroup =
-            currentView.findViewById<RadioGroup>(
-                R.id.rg_contamination
-            )
+        val incompleteInput = objectQuestionInputs.firstOrNull { input ->
 
-        val remainingContentsGroup =
-            currentView.findViewById<RadioGroup>(
-                R.id.rg_remaining_contents
-            )
-
-
-        // ==========================================
-        // 2. 선택 여부 확인
-        // ==========================================
-
-        val contaminationChoice =
-            contaminationGroup.checkedRadioButtonId
-
-        if (contaminationChoice == -1) {
-
-            Toast.makeText(
-                requireContext(),
-                "첫 번째 질문에 답변해 주세요.",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            return
+            input.contaminationGroup.checkedRadioButtonId == -1 ||
+                    input.remainingGroup.checkedRadioButtonId == -1
         }
 
+        if (incompleteInput != null) {
 
-        val remainingContentsChoice =
-            remainingContentsGroup.checkedRadioButtonId
-
-        if (remainingContentsChoice == -1) {
+            toggleObjectDetails(incompleteInput.predictionIndex)
 
             Toast.makeText(
                 requireContext(),
-                "두 번째 질문에 답변해 주세요.",
+                "모든 객체의 상태를 입력해 주세요.",
                 Toast.LENGTH_SHORT
             ).show()
 
@@ -591,33 +971,7 @@ class WasteResultFragment : Fragment() {
 
 
         // ==========================================
-        // 3. Boolean으로 변환
-        // ==========================================
-
-        val isContaminated =
-            when (contaminationChoice) {
-
-                R.id.rb_contamination_yes -> true
-
-                R.id.rb_contamination_no -> false
-
-                else -> return
-            }
-
-
-        val hasRemainingContents =
-            when (remainingContentsChoice) {
-
-                R.id.rb_remaining_yes -> true
-
-                R.id.rb_remaining_no -> false
-
-                else -> return
-            }
-
-
-        // ==========================================
-        // 4. 서버 파일명 확인
+        // 2. 서버 파일명 확인
         // ==========================================
 
         val filename = serverFilename
@@ -635,29 +989,69 @@ class WasteResultFragment : Fragment() {
 
 
         // ==========================================
-        // 5. FastAPI 전송 데이터 생성
+        // 3. 객체별 요청 데이터 생성
+        // ==========================================
+
+        val requestObjects = objectQuestionInputs.map { input ->
+
+            WasteObjectConditionRequest(
+
+                predictionIndex = input.predictionIndex,
+
+                isContaminated =
+                    input.contaminationGroup.checkedRadioButtonId ==
+                            input.contaminationYesId,
+
+                hasRemainingContents =
+                    input.remainingGroup.checkedRadioButtonId ==
+                            input.remainingYesId
+            )
+        }
+
+
+        // ==========================================
+        // 4. 전체 요청 데이터 생성
         // ==========================================
 
         val request = WasteGuideRequest(
 
             filename = filename,
 
-            isContaminated = isContaminated,
-
-            hasRemainingContents = hasRemainingContents,
+            objects = requestObjects,
 
             region = null
         )
 
 
         // ==========================================
-        // 6. 중복 요청 방지
+        // 5. 중복 요청 방지
         // ==========================================
 
         val nextButton =
             currentView.findViewById<View>(R.id.btn_next)
 
         nextButton.isEnabled = false
+
+
+        // ==========================================
+        // 6. 전송 데이터 로그
+        // ==========================================
+
+        Log.d(TAG, "가이드 요청 시작")
+        Log.d(TAG, "서버 파일명: $filename")
+        Log.d(TAG, "전송 객체 수: ${request.objects.size}")
+
+        request.objects.forEach { answer ->
+
+            Log.d(
+                TAG,
+                """
+            prediction_index: ${answer.predictionIndex}
+            오염 여부: ${answer.isContaminated}
+            내용물 잔여 여부: ${answer.hasRemainingContents}
+            """.trimIndent()
+            )
+        }
 
 
         Toast.makeText(
@@ -668,19 +1062,13 @@ class WasteResultFragment : Fragment() {
 
 
         // ==========================================
-        // 7. FastAPI /api/guide 요청
+        // 7. FastAPI 서버에 실제 요청
         // ==========================================
 
-        Log.d(TAG, "가이드 요청 시작")
-        Log.d(TAG, "서버 파일명: $filename")
-        Log.d(TAG, "오염 여부: $isContaminated")
-        Log.d(TAG, "내용물 잔여 여부: $hasRemainingContents")
-
-
         RetrofitClient.api.generateGuide(request)
+
             .enqueue(object : Callback<WasteGuideResponse> {
 
-                // 서버 응답 수신
                 override fun onResponse(
                     call: Call<WasteGuideResponse>,
                     response: Response<WasteGuideResponse>
@@ -690,14 +1078,12 @@ class WasteResultFragment : Fragment() {
 
                     nextButton.isEnabled = true
 
-
                     if (response.isSuccessful) {
 
                         val result = response.body()
 
                         if (result?.success == true) {
 
-                            // 통신 성공
                             Log.d(
                                 TAG,
                                 "가이드 API 통신 성공"
@@ -729,7 +1115,7 @@ class WasteResultFragment : Fragment() {
 
                             Toast.makeText(
                                 requireContext(),
-                                "가이드 요청 처리에 실패했습니다.",
+                                "서버 처리에 실패했습니다.",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -753,7 +1139,6 @@ class WasteResultFragment : Fragment() {
                 }
 
 
-                // 서버 연결 실패
                 override fun onFailure(
                     call: Call<WasteGuideResponse>,
                     t: Throwable
