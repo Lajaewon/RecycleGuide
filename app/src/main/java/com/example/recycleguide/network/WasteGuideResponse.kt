@@ -14,21 +14,9 @@ data class WasteGuideResponse(
     @SerializedName("waste_type")
     val wasteType: String?,
 
-    // 객체별 분리배출 안내 목록
+    // 객체별 자연어 분리배출 안내 목록
     @SerializedName("objects")
     val objects: List<WasteGuideObjectResponse>?,
-
-    // 하위 호환성을 위한 대표 안내 제목
-    @SerializedName("guide_title")
-    val guideTitle: String?,
-
-    // 하위 호환성을 위한 대표 분리배출 단계
-    @SerializedName("steps")
-    val steps: List<String>?,
-
-    // 하위 호환성을 위한 대표 주의사항
-    @SerializedName("cautions")
-    val cautions: List<String>?,
 
     // 서버 처리 메시지
     @SerializedName("message")
@@ -36,10 +24,10 @@ data class WasteGuideResponse(
 )
 
 
-// 개별 폐기물 객체의 분리배출 안내 응답
+// 개별 폐기물 객체의 자연어 안내 응답
 data class WasteGuideObjectResponse(
 
-    // YOLO 탐지 배열의 객체 인덱스
+    // YOLO predictions 배열의 객체 인덱스
     @SerializedName("prediction_index")
     val predictionIndex: Int,
 
@@ -47,27 +35,19 @@ data class WasteGuideObjectResponse(
     @SerializedName("waste_type")
     val wasteType: String,
 
-    // YOLO 신뢰도
+    // YOLO 탐지 신뢰도
     @SerializedName("confidence")
     val confidence: Double,
 
-    // 이물질 오염 여부
+    // 사용자가 입력한 오염 여부
     @SerializedName("is_contaminated")
     val isContaminated: Boolean,
 
-    // 내용물 잔여 여부
+    // 사용자가 입력한 내용물 잔여 여부
     @SerializedName("has_remaining_contents")
     val hasRemainingContents: Boolean,
 
-    // Gemini 생성 안내 제목
-    @SerializedName("guide_title")
-    val guideTitle: String,
-
-    // 단계별 분리배출 방법
-    @SerializedName("steps")
-    val steps: List<String>,
-
-    // 객체별 주의사항
-    @SerializedName("cautions")
-    val cautions: List<String>
+    // Gemini가 생성한 자연어 분리배출 안내문
+    @SerializedName("answer")
+    val answer: String?
 )

@@ -279,93 +279,34 @@ class WasteGuideDetailFragment :
             addGuideDivider(content)
 
 
-            // ------------------------------------------
-            // 3-7. Gemini 생성 안내 제목
-            // ------------------------------------------
+
+// ------------------------------------------
+// 3-7. Gemini 자연어 답변
+// ------------------------------------------
 
             addGuideText(
                 content,
-                guide.guideTitle,
-                17f,
-                R.color.text_main,
+                "Gemini 맞춤 분리배출 안내",
+                15f,
+                R.color.primary_green,
                 true,
                 14
             )
 
-
-            // ------------------------------------------
-            // 3-8. 분리배출 방법 제목
-            // ------------------------------------------
+// Gemini가 생성한 전체 자연어 답변
+            val answerText = guide.answer
+                ?.trim()
+                ?.takeIf { it.isNotBlank() }
+                ?: "분리배출 안내 내용을 불러오지 못했습니다."
 
             addGuideText(
                 content,
-                "분리배출 방법",
-                15f,
-                R.color.primary_green,
-                true,
-                18
+                answerText,
+                14f,
+                R.color.text_sub,
+                false,
+                10
             )
-
-
-            // ------------------------------------------
-            // 3-9. Gemini 생성 단계별 안내
-            // ------------------------------------------
-
-            if (guide.steps.isNotEmpty()) {
-
-                guide.steps.forEachIndexed { stepIndex, step ->
-
-                    addGuideText(
-                        content,
-                        "${stepIndex + 1}. $step",
-                        14f,
-                        R.color.text_sub,
-                        false,
-                        9
-                    )
-                }
-
-            } else {
-
-                addGuideText(
-                    content,
-                    "분리배출 방법이 제공되지 않았습니다.",
-                    13f,
-                    R.color.text_sub,
-                    false,
-                    8
-                )
-            }
-
-
-            // ------------------------------------------
-            // 3-10. 주의사항
-            // ------------------------------------------
-
-            if (guide.cautions.isNotEmpty()) {
-
-                addGuideText(
-                    content,
-                    "주의사항",
-                    15f,
-                    R.color.primary_green,
-                    true,
-                    20
-                )
-
-                guide.cautions.forEach { caution ->
-
-                    addGuideText(
-                        content,
-                        "• $caution",
-                        13f,
-                        R.color.text_sub,
-                        false,
-                        8
-                    )
-                }
-            }
-
 
             // ------------------------------------------
             // 3-11. 최종 카드 추가

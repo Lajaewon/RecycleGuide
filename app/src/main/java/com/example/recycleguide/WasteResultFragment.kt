@@ -1112,10 +1112,9 @@ class WasteResultFragment : Fragment() {
                                     TAG,
                                     "객체 ${guide.predictionIndex + 1}: ${guide.wasteType}"
                                 )
-
                                 Log.d(
                                     TAG,
-                                    "안내 제목: ${guide.guideTitle}"
+                                    "Gemini 자연어 답변: ${guide.answer}"
                                 )
                             }
 

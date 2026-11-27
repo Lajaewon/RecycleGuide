@@ -118,24 +118,19 @@ class RegionInfoFragment : Fragment(R.layout.fragment_region_info) {
         ).text = "총 ${objects.size}개"
 
         // 첫 번째 객체의 Gemini 안내문을 요약 표시
+
+// 첫 번째 객체의 Gemini 자연어 답변을 미리보기로 표시
         val firstGuide = objects.first()
 
-        val preview = buildString {
-
-            append(firstGuide.guideTitle)
-
-            firstGuide.steps.firstOrNull()?.let {
-                append("\n$it")
-            }
-
-            if (objects.size > 1) {
-                append("\n외 ${objects.size - 1}개 객체의 맞춤 안내가 있습니다.")
-            }
-        }
+        val preview = firstGuide.answer
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+            ?: "분리배출 안내 내용을 확인할 수 없습니다."
 
         view.findViewById<TextView>(
             R.id.tv_disposal_method
         ).text = preview
+
 
         Log.d(
             TAG,
