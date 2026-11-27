@@ -204,26 +204,51 @@
                 </LinearLayout>
 
                 <!-- 품목 이름 (서버 값으로 교체) -->
+
                 <TextView
                     android:id="@+id/tv_item_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
                     android:text="@string/region_sample_item"
                     android:textColor="@color/text_main"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
+
                 <!-- 배출 방법 목록 (서버 값으로 교체) -->
+
                 <TextView
                     android:id="@+id/tv_disposal_method"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
+                    android:ellipsize="end"
+                    android:maxLines="3"
                     android:lineSpacingExtra="6dp"
                     android:text="@string/region_sample_method"
                     android:textColor="#4D5E55"
                     android:textSize="14sp" />
+
+
+                <TextView
+                    android:id="@+id/btn_view_guide_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="end"
+                    android:paddingVertical="8dp"
+                    android:text="자세히 보기  ›"
+                    android:textColor="@color/primary_green"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

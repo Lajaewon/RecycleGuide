@@ -1,5 +1,5 @@
-
 package com.example.recycleguide
+
 import com.example.recycleguide.network.WasteObjectConditionRequest
 import android.os.Bundle
 import android.util.Log
@@ -1076,51 +1076,83 @@ class WasteResultFragment : Fragment() {
 
                     if (!isAdded || view == null) return
 
-                    nextButton.isEnabled = true
-
                     if (response.isSuccessful) {
 
                         val result = response.body()
 
-                        if (result?.success == true) {
+                        if (
+                            result != null &&
+                            result.success &&
+                            !result.objects.isNullOrEmpty()
+                        ) {
+
+                            // ======================================
+                            // 1. 전체 Gemini 응답 JSON으로 변환
+                            // ======================================
+
+                            val responseJson = Gson().toJson(result)
 
                             Log.d(
                                 TAG,
-                                "가이드 API 통신 성공"
+                                "Gemini 안내 생성 성공"
                             )
 
                             Log.d(
                                 TAG,
-                                "폐기물 종류: ${result.wasteType}"
+                                "객체별 안내문 개수: ${result.objects.size}"
                             )
 
-                            Log.d(
-                                TAG,
-                                "서버 메시지: ${result.message}"
-                            )
+                            // ======================================
+                            // 2. 객체별 응답 확인
+                            // ======================================
 
-                            Toast.makeText(
-                                requireContext(),
-                                result.message
-                                    ?: "서버 통신 성공!",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            result.objects.forEach { guide ->
+
+                                Log.d(
+                                    TAG,
+                                    "객체 ${guide.predictionIndex + 1}: ${guide.wasteType}"
+                                )
+
+                                Log.d(
+                                    TAG,
+                                    "안내 제목: ${guide.guideTitle}"
+                                )
+                            }
+
+                            // ======================================
+                            // 3. RegionInfoFragment로 화면 이동
+                            // ======================================
+
+                            parentFragmentManager.beginTransaction()
+                                .setReorderingAllowed(true)
+                                .replace(
+                                    R.id.fragment_container,
+                                    RegionInfoFragment.newInstance(responseJson)
+                                )
+                                .addToBackStack("region_info")
+                                .commit()
 
                         } else {
 
+                            // 서버 처리 실패 또는 객체별 응답 누락
+                            nextButton.isEnabled = true
+
                             Log.e(
                                 TAG,
-                                "서버 처리 실패: ${result?.message}"
+                                "가이드 응답이 비어 있거나 처리에 실패했습니다."
                             )
 
                             Toast.makeText(
                                 requireContext(),
-                                "서버 처리에 실패했습니다.",
+                                result?.message ?: "분리배출 안내 생성에 실패했습니다.",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
 
                     } else {
+
+                        // HTTP 오류
+                        nextButton.isEnabled = true
 
                         val errorBody =
                             response.errorBody()?.string()
@@ -1156,109 +1188,54 @@ class WasteResultFragment : Fragment() {
 
                     Toast.makeText(
                         requireContext(),
-                        "서버에 연결할 수 없습니다.",
+                        "네트워크 오류로 분리배출 안내를 불러오지 못했습니다.",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             })
     }
 
-
-
-    // ==================================================
-    // Fragment 생성 및 데이터 전달
-    // ==================================================
+    override fun onDestroyView() {
+        super.onDestroyView()
+        objectQuestionInputs.clear()
+        expandedObjectIndex = null
+    }
 
     companion object {
-
         private const val TAG = "WasteResultFragment"
 
-        private const val ARG_PHOTO_PATH =
-            "photo_path"
-
-        private const val ARG_ANNOTATED_IMAGE_URL =
-            "annotated_image_url"
-
-        private const val ARG_WASTE_TYPE =
-            "waste_type"
-
-        private const val ARG_CONFIDENCE =
-            "confidence"
-
-        private const val ARG_TOTAL_COUNT =
-            "total_count"
-
-        private const val ARG_DETECTED =
-            "detected"
-
-        private const val ARG_ANALYSIS_MESSAGE =
-            "analysis_message"
-
-        private const val ARG_SERVER_FILENAME =
-            "server_filename"
-
-        private const val ARG_PREDICTIONS_JSON =
-            "predictions_json"
-
+        const val ARG_PHOTO_PATH = "arg_photo_path"
+        const val ARG_ANNOTATED_IMAGE_URL = "arg_annotated_image_url"
+        const val ARG_WASTE_TYPE = "arg_waste_type"
+        const val ARG_CONFIDENCE = "arg_confidence"
+        const val ARG_TOTAL_COUNT = "arg_total_count"
+        const val ARG_DETECTED = "arg_detected"
+        const val ARG_ANALYSIS_MESSAGE = "arg_analysis_message"
+        const val ARG_SERVER_FILENAME = "arg_server_filename"
+        const val ARG_PREDICTIONS_JSON = "arg_predictions_json"
 
         fun newInstance(
-            photoPath: String,
-            annotatedImageUrl: String?,
-            wasteType: String?,
-            confidence: Double?,
-            totalCount: Int,
-            detected: Boolean,
-            analysisMessage: String,
-            serverFilename: String,
-            predictionsJson: String = "[]"
+            photoPath: String? = null,
+            annotatedImageUrl: String? = null,
+            wasteType: String? = null,
+            confidence: Double? = null,
+            totalCount: Int = 0,
+            detected: Boolean = false,
+            analysisMessage: String? = null,
+            serverFilename: String? = null,
+            predictionsJson: String? = null
         ): WasteResultFragment {
-
             return WasteResultFragment().apply {
-
                 arguments = Bundle().apply {
-
-                    putString(
-                        ARG_PHOTO_PATH,
-                        photoPath
-                    )
-
-                    putString(
-                        ARG_ANNOTATED_IMAGE_URL,
-                        annotatedImageUrl
-                    )
-
-                    putString(
-                        ARG_WASTE_TYPE,
-                        wasteType
-                    )
-
-                    confidence?.let {
-                        putDouble(ARG_CONFIDENCE, it)
-                    }
-
-                    putInt(
-                        ARG_TOTAL_COUNT,
-                        totalCount
-                    )
-
-                    putBoolean(
-                        ARG_DETECTED,
-                        detected
-                    )
-
-                    putString(
-                        ARG_ANALYSIS_MESSAGE,
-                        analysisMessage
-                    )
-                    putString(
-                        ARG_SERVER_FILENAME,
-                        serverFilename
-                    )
-
-                    putString(
-                        ARG_PREDICTIONS_JSON,
-                        predictionsJson
-                    )
+                    putString(ARG_PHOTO_PATH, photoPath)
+                    putString(ARG_ANNOTATED_IMAGE_URL, annotatedImageUrl)
+                    putString(ARG_WASTE_TYPE, wasteType)
+                    confidence?.let { putDouble(ARG_CONFIDENCE, it) }
+                    putInt(ARG_TOTAL_COUNT, totalCount)
+                    putBoolean(ARG_DETECTED, detected)
+                    putString(ARG_ANALYSIS_MESSAGE, analysisMessage)
+                    putString(ARG_SERVER_FILENAME, serverFilename)
+                    putString(ARG_PREDICTIONS_JSON, predictionsJson)
                 }
             }
         }
